@@ -1,0 +1,6 @@
+debtor_id,name,phone,email,debtor_type,amount,creditor,invoice_number,debt_date,dob,abn,timezone,call_status,call_id,last_call_date,last_outcome,next_action,next_call_date,attempt_number,notes,assigned_to_ai,payment_status,do_not_call,recording_url
+1,Test Consumer 1,+61412345678,test1@example.com,consumer,1500.00,ABC Company,INV-001,2024-06-01,1980-05-15,,AEST,,,,,SCHEDULE_CALL,2025-10-05 10:00:00,1,,TRUE,unpaid,FALSE,
+2,Test Consumer 2,0423 456 789,test2@example.com,consumer,800.00,GHI Services,INV-003,2024-08-01,1975-03-22,,AEST,,,,,SCHEDULE_CALL,2025-10-05 14:00:00,1,,TRUE,unpaid,FALSE,
+3,Test Commercial 1,61498765432,accounts@testcompany.com.au,commercial,5000.00,DEF Corp,INV-002,2024-07-15,,12345678901,ACST,,,,,SCHEDULE_CALL,2025-10-05 11:00:00,1,,TRUE,unpaid,FALSE,
+4,Test Consumer 3,0412 345 678,test3@example.com,consumer,2200.00,JKL Industries,INV-004,2024-09-10,1990-11-08,,AEST,,,,,SCHEDULE_CALL,2025-10-05 16:00:00,1,,TRUE,unpaid,FALSE,
+5,Test Commercial 2,+61 3 9876 5432,billing@testbiz.com.au,commercial,7500.00,MNO Suppliers,INV-005,2024-07-20,,98765432109,AEST,,,,,SCHEDULE_CALL,2025-10-06 09:00:00,1,,TRUE,unpaid,FALSE,

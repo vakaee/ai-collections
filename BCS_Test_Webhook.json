@@ -1,0 +1,110 @@
+{
+  "name": "BCS Test Webhook",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-test-001",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 240]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate Test Vapi Webhook Payload\n// Based on WORKFLOW_ADAPTATION_PLAN.md Section 7.2 with FIX #6\n\nconst crypto = require('crypto');\n\n// Test debtor data\nconst testDebtorId = 'TEST-001';\nconst testOutcome = 'READY_TO_PAY';\nconst testPaymentMethod = 'credit_card';\n\n// Build mock Vapi webhook payload (FIX #6: Updated structure)\nconst payload = {\n  message: {\n    type: 'end-of-call-report',\n    call: {\n      id: `test-call-${Date.now()}`,\n      status: 'ended',\n      endedReason: 'assistant-ended-call',\n      assistantOverrides: {\n        variableValues: {\n          debtor_id: testDebtorId,\n          debtor_name: 'Test Debtor',\n          amount: '1500.00',\n          creditor: 'Test Creditor Pty Ltd',\n          invoice_number: 'INV-TEST-001',\n          attempt_number: '1'\n        }\n      }\n    },\n    artifact: {\n      messages: [\n        {\n          role: 'assistant',\n          message: 'Test call completed',\n          toolCalls: [\n            {\n              id: `tool-call-${Date.now()}`,\n              type: 'function',\n              function: {\n                name: 'log_outcome',\n                arguments: JSON.stringify({\n                  outcome: testOutcome,\n                  payment_method: testPaymentMethod,\n                  promised_date: null,\n                  notes: 'Test webhook - debtor ready to pay via credit card'\n                })\n              }\n            }\n          ]\n        }\n      ],\n      recordingUrl: null,\n      transcript: 'Test transcript placeholder'\n    }\n  }\n};\n\n// Generate HMAC signature\nconst secret = $vars.VAPI_WEBHOOK_SECRET;\nconst payloadString = JSON.stringify(payload);\nconst signature = crypto\n  .createHmac('sha256', secret)\n  .update(payloadString)\n  .digest('hex');\n\nreturn {\n  payload: payload,\n  signature: signature,\n  webhook_url: $vars.WEBHOOK_VAPI_HANDLER,\n  test_scenario: `${testOutcome} - ${testPaymentMethod}`\n};"
+      },
+      "id": "code-generate-001",
+      "name": "Generate Test Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 240]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.webhook_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Vapi-Signature",
+              "value": "={{ $json.signature }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.payload) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "http-test-001",
+      "name": "Send to Vapi Handler",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [480, 240]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Display Test Results\nconst response = $input.item.json;\nconst statusCode = $input.item.statusCode || 0;\n\nconst testScenario = $node['Generate Test Payload'].json.test_scenario;\n\nconsole.log('===== TEST WEBHOOK RESULTS =====');\nconsole.log(`Scenario: ${testScenario}`);\nconsole.log(`Status Code: ${statusCode}`);\nconsole.log(`Response:`, JSON.stringify(response, null, 2));\nconsole.log('===== END RESULTS =====');\n\nreturn {\n  test_scenario: testScenario,\n  status_code: statusCode,\n  success: statusCode >= 200 && statusCode < 300,\n  response: response\n};"
+      },
+      "id": "code-results-001",
+      "name": "Display Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 240]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Generate Test Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Test Payload": {
+      "main": [
+        [
+          {
+            "node": "Send to Vapi Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send to Vapi Handler": {
+      "main": [
+        [
+          {
+            "node": "Display Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bcs-test-webhook-v1",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "bcs-debt-collection-bot"
+  },
+  "id": "BCS_Test_Webhook",
+  "tags": ["BCS", "Debt Collection", "Testing", "Vapi"]
+}
