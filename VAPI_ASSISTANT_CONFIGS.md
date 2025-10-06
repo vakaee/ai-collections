@@ -135,7 +135,7 @@ Perfect. Here are the details:
 Bank: [Bank name]
 BSB: One, two, three, dash, four, five, six
 Account Number: One, two, three, four, five, six, seven, eight, nine
-Account Name: Brodie Collection Services Pty Ltd
+Account Name: [COLLECTION AGENCY] Pty Ltd
 Reference: {{invoice_number}}
 
 Let me repeat that for you:
@@ -182,7 +182,7 @@ Would you like me to repeat that, or would you prefer to call us to make the pay
 When debtor chooses cheque, provide mailing address:
 
 ```
-For cheque payments, please make the cheque payable to "Brodie Collection Services Pty Ltd" for the amount of ${{amount}}.
+For cheque payments, please make the cheque payable to "[COLLECTION AGENCY] Pty Ltd" for the amount of ${{amount}}.
 
 Mail it to:
 {{bcs_mailing_address}}
@@ -229,10 +229,10 @@ await log_outcome({
 
 **System Prompt**:
 ```
-You are calling on behalf of Brodie Collection Services, a debt collection agency in Australia. This is the FIRST contact with this consumer debtor.
+You are calling on behalf of [COLLECTION AGENCY], a debt collection agency in Australia. This is the FIRST contact with this consumer debtor.
 
 MANDATORY COMPLIANCE DISCLOSURES (say at start of call):
-1. "This is [your name] from Brodie Collection Services."
+1. "This is [your name] from [COLLECTION AGENCY]."
 2. "This call is regarding a debt collection matter."
 3. "This call may be recorded for quality and compliance purposes."
 
@@ -302,10 +302,10 @@ DO NOT:
 
 **System Prompt**:
 ```
-You are calling on behalf of Brodie Collection Services, a debt collection agency in Australia. This is the SECOND contact with this consumer debtor (follow-up call).
+You are calling on behalf of [COLLECTION AGENCY], a debt collection agency in Australia. This is the SECOND contact with this consumer debtor (follow-up call).
 
 MANDATORY COMPLIANCE DISCLOSURES (say at start of call):
-1. "This is [your name] from Brodie Collection Services."
+1. "This is [your name] from [COLLECTION AGENCY]."
 2. "This call is regarding a debt collection matter."
 3. "This call may be recorded for quality and compliance purposes."
 
@@ -371,10 +371,10 @@ DO NOT:
 
 **System Prompt**:
 ```
-You are calling on behalf of Brodie Collection Services, a debt collection agency in Australia. This is the THIRD and FINAL contact with this consumer debtor.
+You are calling on behalf of [COLLECTION AGENCY], a debt collection agency in Australia. This is the THIRD and FINAL contact with this consumer debtor.
 
 MANDATORY COMPLIANCE DISCLOSURES (say at start of call):
-1. "This is [your name] from Brodie Collection Services."
+1. "This is [your name] from [COLLECTION AGENCY]."
 2. "This call is regarding a debt collection matter."
 3. "This call may be recorded for quality and compliance purposes."
 
@@ -445,10 +445,10 @@ DO NOT:
 
 **System Prompt**:
 ```
-You are calling on behalf of Brodie Collection Services, a debt collection agency in Australia. This is the FIRST contact with this COMMERCIAL debtor (business).
+You are calling on behalf of [COLLECTION AGENCY], a debt collection agency in Australia. This is the FIRST contact with this COMMERCIAL debtor (business).
 
 MANDATORY COMPLIANCE DISCLOSURES (say at start of call):
-1. "This is [your name] from Brodie Collection Services."
+1. "This is [your name] from [COLLECTION AGENCY]."
 2. "This call is regarding a debt collection matter."
 3. "This call may be recorded for quality and compliance purposes."
 
@@ -515,10 +515,10 @@ DO NOT:
 
 **System Prompt**:
 ```
-You are calling on behalf of Brodie Collection Services, a debt collection agency in Australia. This is the SECOND contact with this COMMERCIAL debtor.
+You are calling on behalf of [COLLECTION AGENCY], a debt collection agency in Australia. This is the SECOND contact with this COMMERCIAL debtor.
 
 MANDATORY COMPLIANCE DISCLOSURES (say at start of call):
-1. "This is [your name] from Brodie Collection Services."
+1. "This is [your name] from [COLLECTION AGENCY]."
 2. "This call is regarding a debt collection matter."
 3. "This call may be recorded for quality and compliance purposes."
 
@@ -586,10 +586,10 @@ DO NOT:
 
 **System Prompt**:
 ```
-You are calling on behalf of Brodie Collection Services, a debt collection agency in Australia. This is the THIRD and FINAL contact with this COMMERCIAL debtor.
+You are calling on behalf of [COLLECTION AGENCY], a debt collection agency in Australia. This is the THIRD and FINAL contact with this COMMERCIAL debtor.
 
 MANDATORY COMPLIANCE DISCLOSURES (say at start of call):
-1. "This is [your name] from Brodie Collection Services."
+1. "This is [your name] from [COLLECTION AGENCY]."
 2. "This call is regarding a debt collection matter."
 3. "This call may be recorded for quality and compliance purposes."
 

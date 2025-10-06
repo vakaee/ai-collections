@@ -6,7 +6,7 @@
 **Version**: 2.0 (Updated with workflow adaptation timeline: 13.5h vs 40h from scratch)
 **Last Updated**: October 3, 2025
 **Timeline**: 4 weeks (October 3 - October 31, 2025)
-**Budget**: $2,500 (+$500 bonus)
+**Budget**: [PRICE REDACTED] (+[BONUS REDACTED])
 
 ---
 
@@ -84,7 +84,7 @@
 **Goal**: Implement conversation scripts, objection handling, outcome logging
 
 #### Day 8-9 (Oct 10-11): Vapi Assistant Configuration
-- [ ] **Draft scripts** based on Letter of Demand templates (will refine with Peter later)
+- [ ] **Draft scripts** based on Letter of Demand templates (will refine with [CLIENT] later)
 - [ ] Configure Consumer 1st Call assistant (system prompt, functions)
 - [ ] Configure Consumer 2nd Call assistant
 - [ ] Configure Consumer 3rd Call assistant
@@ -168,7 +168,7 @@
 - [ ] Fix any bugs or edge cases
 - [ ] Optimize call duration (target 2-4 minutes)
 
-**Deliverable**: Peter approves call quality and compliance
+**Deliverable**: [CLIENT] approves call quality and compliance
 
 ---
 
@@ -203,13 +203,13 @@
 
 #### Day 27-28 (Oct 29-31): Final Handover
 - [ ] Document all workflows (screenshots, descriptions)
-- [ ] Create user guide for Peter (how to allocate accounts, review outcomes)
-- [ ] Train Peter on accessing n8n dashboard
+- [ ] Create user guide for [CLIENT] (how to allocate accounts, review outcomes)
+- [ ] Train [CLIENT] on accessing n8n dashboard
 - [ ] Provide credentials (Vapi, n8n, database)
 - [ ] Final review call with Peter
 - [ ] Address any last-minute feedback
 
-**Deliverable**: Project handed over, Peter can operate system independently
+**Deliverable**: Project handed over, [CLIENT] can operate system independently
 
 ---
 
@@ -227,14 +227,14 @@ Phase 1 is complete when:
 - [ ] Objection handling works (dispute, hardship, payment)
 - [ ] Human escalation triggers function
 - [ ] Call recordings stored and accessible
-- [ ] Peter can review outcomes and transcripts
+- [ ] [CLIENT] can review outcomes and transcripts
 - [ ] System deployed to DigitalOcean
 - [ ] 10+ successful production calls made
 
-**Bonus Criteria** ($500 bonus):
+**Bonus Criteria** ([BONUS REDACTED]):
 - [ ] Zero compliance violations in first 50 calls
 - [ ] 80%+ successful contact rate (excluding wrong numbers)
-- [ ] Positive feedback from Peter on call quality
+- [ ] Positive feedback from [CLIENT] on call quality
 
 ---
 
@@ -300,9 +300,9 @@ Phase 1 is complete when:
 | Scripts delayed | Medium | High | Use letter templates as basis | Vlad |
 | Vapi API issues | Low | High | Test thoroughly, have Twilio backup plan | Vlad |
 | Compliance violations | Medium | Critical | Hard-code disclosures, manual review first 50 calls | Vlad |
-| Debtor complaints | Medium | High | Human review of first 50 calls, adjust tone | Peter |
+| Debtor complaints | Medium | High | Human review of first 50 calls, adjust tone | [CLIENT] |
 | Budget overruns (API) | Low | Medium | Cap test calls at 200, monitor usage | Vlad |
-| Deadline slip | Medium | High | Start immediately, weekly check-ins | Vlad/Peter |
+| Deadline slip | Medium | High | Start immediately, weekly check-ins | Vlad/[CLIENT] |
 | Deployment issues | Medium | Medium | Test Docker locally first, have backup Droplet | Vlad |
 
 ---
@@ -318,7 +318,7 @@ Phase 1 is complete when:
 
 **Original Blocker #2**: Call Scripts
 - **Status**: ✅ SOLVED
-- **Solution**: Draft scripts from Letter of Demand templates, refine with Peter later
+- **Solution**: Draft scripts from Letter of Demand templates, refine with [CLIENT] later
 - **Note**: Vapi scripts can be updated in 5 minutes (not blocking)
 
 ### Remaining Dependencies (Not Blocking)
@@ -361,9 +361,9 @@ Phase 1 is complete when:
 | n8n license | $0 | Self-hosted, no cost |
 | Google Sheets | $0 | Free (interim CRM) |
 | Contingency | $278 | Buffer for overages |
-| **TOTAL** | **$2,500** | |
+| **TOTAL** | **[PRICE REDACTED]** | |
 
-**Post-delivery ongoing costs** (Peter's responsibility after handover):
+**Post-delivery ongoing costs** ([CLIENT]'s responsibility after handover):
 - Vapi: $50/month + per-minute charges (~$0.05-0.09/min)
 - Twilio SMS: $0.08 per SMS sent (payment delivery)
 - DigitalOcean: $12/month
@@ -382,12 +382,12 @@ Phase 1 is complete when:
 - Payment: Not applicable
 
 **Milestone 3** (Oct 23): Testing complete
-- 50+ test calls, compliance verified, Peter approval
+- 50+ test calls, compliance verified, [CLIENT] approval
 - Payment: Not applicable
 
 **Milestone 4** (Oct 31): Production deployment
 - System live on DigitalOcean, production calls successful, handover complete
-- Payment: $2,500 (via Upwork contract)
+- Payment: [PRICE REDACTED] (via Upwork contract)
 - Bonus: $500 (if success criteria met)
 
 ---
@@ -406,7 +406,7 @@ Phase 1 is complete when:
 - Demo: Share test call recordings
 - Next week: Testing begins
 
-**Week 3** (Oct 23): Call with Peter (30-60 min)
+**Week 3** (Oct 23): Call with [CLIENT] (30-60 min)
 - Review: Test call results
 - Approval: Confirm quality and compliance
 - Next week: Production deployment
@@ -420,7 +420,7 @@ Phase 1 is complete when:
 
 ## 10. Post-Delivery Support
 
-**Included in $2,500**:
+**Included in [PRICE REDACTED]**:
 - 7 days of bug fixes (Oct 31 - Nov 7)
 - Minor adjustments to scripts/workflows
 
@@ -443,7 +443,7 @@ Phase 1 is complete when:
    - How to listen to call recordings
    - How to manually escalate accounts
 
-2. **Technical Documentation** (for Peter's IT):
+2. **Technical Documentation** (for [CLIENT]'s IT):
    - n8n workflow diagrams
    - Database schema
    - Vapi configuration
@@ -468,7 +468,7 @@ Phase 1 is complete when:
 | 2 | Test calls made | 10+ | |
 | 3 | Test calls made (cumulative) | 50+ | |
 | 3 | Compliance violations | 0 | |
-| 3 | Peter approval | Yes | |
+| 3 | [CLIENT] approval | Yes | |
 | 4 | Production deployment | Yes | |
 | 4 | Production calls successful | 10+ | |
 | 4 | Handover complete | Yes | |
@@ -484,12 +484,12 @@ Phase 1 is complete when:
 
 **If scripts are delayed beyond Oct 11**:
 - Draft scripts based on letter templates
-- Get Peter's approval via email
+- Get [CLIENT]'s approval via email
 - Adjust in Vapi after feedback
 
 **If Vapi has outages**:
 - Have Twilio account ready as backup (not ideal, but functional)
-- Notify Peter of delay
+- Notify [CLIENT] of delay
 
 **If deadline is at risk (Oct 25+)**:
 - Reduce testing to 25 calls instead of 50

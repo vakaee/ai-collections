@@ -11,7 +11,7 @@
 
 ## 1. Overview
 
-This document analyzes the two Letter of Demand templates provided by Peter to extract tone, structure, language patterns, and compliance elements. These insights inform the AI voice bot's conversation scripts.
+This document analyzes the two Letter of Demand templates provided by [CLIENT] to extract tone, structure, language patterns, and compliance elements. These insights inform the AI voice bot's conversation scripts.
 
 ---
 
@@ -22,7 +22,7 @@ This document analyzes the two Letter of Demand templates provided by Peter to e
 ### 2.1 Structure
 
 1. **Header**:
-   - Brodie Collection Services branding
+   - [COLLECTION AGENCY] branding
    - Contact details (phone, email, address)
    - Date
    - Debtor's name and address
@@ -228,7 +228,7 @@ Same basic structure as consumer template, with these modifications:
 **Bank Transfer**:
 - BSB: [AWAITING DETAILS FROM PETER]
 - Account Number: [AWAITING DETAILS FROM PETER]
-- Account Name: Likely "Brodie Collection Services" or "[Creditor Name] c/o BCS"
+- Account Name: Likely "[COLLECTION AGENCY]" or "[Creditor Name] c/o BCS"
 - Reference: [AWAITING FORMAT - likely debtor ID or invoice number]
 
 **Credit Card**:
@@ -236,10 +236,10 @@ Same basic structure as consumer template, with these modifications:
 - Processing: Likely manual (call BCS to process)
 
 **Cheque**:
-- Payable to: "Brodie Collection Services"
+- Payable to: "[COLLECTION AGENCY]"
 - Mailing address: [AWAITING BCS ADDRESS]
 
-**Note**: Peter has not yet provided exact payment details. These will be added to conversation scripts once received.
+**Note**: [CLIENT] has not yet provided exact payment details. These will be added to conversation scripts once received.
 
 ---
 
@@ -295,7 +295,7 @@ Both templates demonstrate strong compliance with Australian debt collection reg
 Based on template analysis, voice scripts should:
 
 1. **Opening**: Mirror the formal but clear tone
-   - "This is [Agent] from Brodie Collection Services"
+   - "This is [Agent] from [COLLECTION AGENCY]"
    - Not: "Hey, it's [Agent] calling about a payment"
 
 2. **Debt Statement**: Be as specific as the letters
@@ -333,7 +333,7 @@ Based on template analysis, voice scripts should:
 
 - [CONVERSATION_DESIGN.md](./CONVERSATION_DESIGN.md) - Call scripts informed by these templates
 - [COMPLIANCE.md](./COMPLIANCE.md) - Regulatory requirements
-- [PENDING_ITEMS.md](./PENDING_ITEMS.md) - Information still needed from Peter
+- [PENDING_ITEMS.md](./PENDING_ITEMS.md) - Information still needed from [CLIENT]
 
 ---
 

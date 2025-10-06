@@ -5,7 +5,7 @@
 **Project**: AI Debt Collection Bot - Phase 1
 **Version**: 2.0 (Updated with 5 workflows, 23-column schema, security measures)
 **Last Updated**: October 3, 2025
-**Author**: Vlad Petoukhov
+**Author**: [DEVELOPER NAME]
 
 ---
 
@@ -153,7 +153,7 @@
 - **Security**: Webhook signature verification prevents unauthorized data updates
 
 **Migration Path**:
-When Peter provides CRM access, replace Google Sheets node with PostgreSQL/MySQL node. Data can be exported to CSV and imported to real CRM.
+When [CLIENT] provides CRM access, replace Google Sheets node with PostgreSQL/MySQL node. Data can be exported to CSV and imported to real CRM.
 
 ---
 
@@ -234,11 +234,11 @@ CREATE TABLE system_config (
 - Cons: Tight coupling, requires DB credentials
 
 **Approach 2: REST API**
-- Peter's brother builds lightweight API endpoints:
+- [CLIENT]'s brother builds lightweight API endpoints:
   - `GET /debtors/:id` - Fetch debtor details
   - `POST /calls` - Log call outcome
 - Pros: Decoupled, more secure
-- Cons: Requires Peter's brother's time
+- Cons: Requires [CLIENT]'s brother's time
 
 **Decision**: Approach 1 initially (pending CRM access), migrate to Approach 2 if needed.
 
@@ -261,7 +261,7 @@ CREATE TABLE system_config (
     "provider": "openai",
     "model": "gpt-4o",
     "temperature": 0.3,  // Low temperature for consistency
-    "systemPrompt": "You are calling on behalf of Brodie Collection Services..."
+    "systemPrompt": "You are calling on behalf of [COLLECTION AGENCY]..."
   },
   "functions": [
     {
@@ -294,10 +294,10 @@ CREATE TABLE system_config (
 **Consumer Debtor (1st Call)**:
 
 ```
-You are calling on behalf of Brodie Collection Services, a licensed debt collection agency in Australia. Your name is Sarah.
+You are calling on behalf of [COLLECTION AGENCY], a licensed debt collection agency in Australia. Your name is Sarah.
 
 MANDATORY OPENING (say this verbatim):
-"Hello, this is Sarah calling from Brodie Collection Services. This call is regarding a debt collection matter and may be recorded for quality and compliance purposes. May I please speak with [DEBTOR_NAME]?"
+"Hello, this is Sarah calling from [COLLECTION AGENCY]. This call is regarding a debt collection matter and may be recorded for quality and compliance purposes. May I please speak with [DEBTOR_NAME]?"
 
 If the person confirms they are [DEBTOR_NAME], proceed with identity verification:
 "For security purposes, can you please confirm your date of birth?"
@@ -652,7 +652,7 @@ const paymentLink = process.env.STRIPE_PAYMENT_LINK; // or dynamic link per debt
 
 return {
   to: debtor.phone,
-  body: `Brodie Collection Services
+  body: `[COLLECTION AGENCY]
 
 Pay $${debtor.amount} now via credit card:
 ${paymentLink}
@@ -667,7 +667,7 @@ const debtor = $input.item.json;
 
 return {
   to: debtor.phone,
-  body: `Brodie Collection Services
+  body: `[COLLECTION AGENCY]
 Bank Transfer Details:
 
 BSB: ${process.env.BSB}
@@ -686,12 +686,12 @@ const debtor = $input.item.json;
 
 return {
   to: debtor.phone,
-  body: `Brodie Collection Services
+  body: `[COLLECTION AGENCY]
 Mail cheque to:
 
 ${process.env.BCS_ADDRESS}
 
-Payable to: Brodie Collection Services
+Payable to: [COLLECTION AGENCY]
 Amount: $${debtor.amount}
 Reference: ${debtor.debtor_id}
 
@@ -902,7 +902,7 @@ TWILIO_FROM_NUMBER=+61xxxxxxxxx
 STRIPE_PAYMENT_LINK=https://buy.stripe.com/xxxxx  # or dynamic
 BSB=XXX-XXX
 ACCOUNT_NUMBER=XXXXXXXXX
-ACCOUNT_NAME=Brodie Collection Services
+ACCOUNT_NAME=[COLLECTION AGENCY]
 BCS_PHONE=+61x xxxx xxxx
 BCS_ADDRESS=123 Example St, Sydney NSW 2000
 
@@ -1067,7 +1067,7 @@ MIN_HOURS_BETWEEN_CALLS=2
 - Prove call flow works end-to-end
 
 **Phase 1b**: Direct DB connection
-- Connect to Peter's CRM database (read-only initially)
+- Connect to [CLIENT]'s CRM database (read-only initially)
 - Write outcomes to new table
 
 **Phase 1c**: Production
@@ -1121,11 +1121,11 @@ MIN_HOURS_BETWEEN_CALLS=2
   - n8n and PostgreSQL run in containers
 
 **ADR-006**: Use Google Sheets as interim CRM (Stopgap)
-- **Context**: Peter's CRM access delayed, timeline is tight (28 days)
+- **Context**: [CLIENT]'s CRM access delayed, timeline is tight (28 days)
 - **Decision**: Use Google Sheets for Phase 1 debtor tracking, migrate to real CRM later
 - **Consequences**:
   - ✅ Zero setup time (no waiting for credentials)
-  - ✅ Easy for Peter to view/edit debtor data
+  - ✅ Easy for [CLIENT] to view/edit debtor data
   - ✅ n8n native integration (Google Sheets node)
   - ✅ Simple migration path (swap node, export/import data)
   - ❌ Limited scalability (fine for <1000 records)

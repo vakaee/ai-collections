@@ -377,7 +377,7 @@ VAPI_PHONE_NUMBER=+61412345678       # Actual number (for display/reference only
 4. **Call recording URL**: Is it in `artifact.recording.url` or `call.recordingUrl`?
    - Test and verify exact field name
 
-### 8.2 Needs Peter Decision
+### 8.2 Needs [CLIENT] Decision
 
 1. Should we handle both `tool-calls` (real-time) AND `end-of-call-report` events?
    - Real-time: Faster response
@@ -385,7 +385,7 @@ VAPI_PHONE_NUMBER=+61412345678       # Actual number (for display/reference only
 
 2. What if AI doesn't call `log_outcome`?
    - Should we set default outcome = `NO_ANSWER`?
-   - Should we send alert to Peter?
+   - Should we send alert to [CLIENT]?
 
 ---
 

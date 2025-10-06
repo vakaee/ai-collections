@@ -58,37 +58,17 @@
     },
     {
       "parameters": {
-        "documentId": {
-          "__rl": true,
-          "value": "={{ $vars.GOOGLE_SHEETS_SPREADSHEET_ID }}",
-          "mode": "id"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "Sheet1",
-          "mode": "name"
-        },
-        "filtersUI": {
-          "values": [
-            {
-              "lookupColumn": "debtor_id",
-              "lookupValue": "={{ $json.debtor_id }}"
-            }
-          ]
-        },
+        "operation": "lookup",
+        "sheetId": "={{ $vars.GOOGLE_SHEETS_SPREADSHEET_ID }}",
+        "lookupColumn": "debtor_id",
+        "lookupValue": "={{ $json.debtor_id }}",
         "options": {}
       },
       "id": "sheets-lookup-001",
       "name": "Lookup Debtor Row",
       "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4,
-      "position": [1200, 320],
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
-          "name": "Google Sheets account"
-        }
-      }
+      "typeVersion": 3,
+      "position": [1200, 320]
     },
     {
       "parameters": {
@@ -102,86 +82,18 @@
     },
     {
       "parameters": {
-        "documentId": {
-          "__rl": true,
-          "value": "={{ $vars.GOOGLE_SHEETS_SPREADSHEET_ID }}",
-          "mode": "id"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "Sheet1",
-          "mode": "name"
-        },
         "operation": "update",
-        "dataMode": "autoMapInputData",
-        "options": {
-          "dataStartRow": "={{ $json.row_number }}",
-          "rawData": true
-        },
-        "columnsUi": {
-          "columnValues": [
-            {
-              "column": "call_status",
-              "value": "={{ $json.call_status }}"
-            },
-            {
-              "column": "call_id",
-              "value": "={{ $json.call_id }}"
-            },
-            {
-              "column": "last_call_date",
-              "value": "={{ $json.last_call_date }}"
-            },
-            {
-              "column": "last_outcome",
-              "value": "={{ $json.last_outcome }}"
-            },
-            {
-              "column": "next_action",
-              "value": "={{ $json.next_action }}"
-            },
-            {
-              "column": "next_call_date",
-              "value": "={{ $json.next_call_date }}"
-            },
-            {
-              "column": "attempt_number",
-              "value": "={{ $json.attempt_number }}"
-            },
-            {
-              "column": "notes",
-              "value": "={{ $json.notes }}"
-            },
-            {
-              "column": "assigned_to_ai",
-              "value": "={{ $json.assigned_to_ai }}"
-            },
-            {
-              "column": "payment_status",
-              "value": "={{ $json.payment_status }}"
-            },
-            {
-              "column": "do_not_call",
-              "value": "={{ $json.do_not_call }}"
-            },
-            {
-              "column": "recording_url",
-              "value": "={{ $json.recording_url }}"
-            }
-          ]
-        }
+        "sheetId": "={{ $vars.GOOGLE_SHEETS_SPREADSHEET_ID }}",
+        "range": "Sheet1!M{{ $json.row_number }}:X{{ $json.row_number }}",
+        "options": {},
+        "valueInputMode": "RAW",
+        "dataProperty": "={{ [[$json.call_status, $json.call_id, $json.last_call_date, $json.last_outcome, $json.next_action, $json.next_call_date, $json.attempt_number, $json.notes, $json.assigned_to_ai, $json.payment_status, $json.do_not_call, $json.recording_url]] }}"
       },
       "id": "sheets-update-002",
       "name": "Update Debtor Row",
       "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4,
-      "position": [1680, 320],
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
-          "name": "Google Sheets account"
-        }
-      }
+      "typeVersion": 3,
+      "position": [1680, 320]
     },
     {
       "parameters": {
@@ -320,7 +232,7 @@
             "index": 0
           }
         ],
-        [null]
+        []
       ]
     }
   },

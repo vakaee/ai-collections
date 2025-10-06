@@ -1,7 +1,7 @@
 # Implementation Checklist - BCS Debt Collection Bot
 
-**Phase 1 Scope**: Voice-only outbound calling ($2,500 + $500 bonus)
-**Phase 2 Scope**: SMS + Email automation ($2,000-$2,500) - Not included below
+**Phase 1 Scope**: Voice-only outbound calling ([PRICE REDACTED] + [BONUS REDACTED])
+**Phase 2 Scope**: SMS + Email automation ($2,000-[PRICE REDACTED]) - Not included below
 
 ---
 
@@ -40,7 +40,7 @@ curl https://api.vapi.ai/assistant \
 - [ ] Format column M (call_status) as dropdown: (blank), calling, completed
 - [ ] Format column U (assigned_to_ai) as checkbox (TRUE/FALSE)
 - [ ] Format column W (do_not_call) as checkbox (TRUE/FALSE)
-- [ ] Share with Peter (edit access): peter@brodiecollectionservices.com.au
+- [ ] Share with [CLIENT] (edit access): [CLIENT EMAIL]
 - [ ] Copy spreadsheet ID from URL: `docs.google.com/spreadsheets/d/{SPREADSHEET_ID}/edit`
 - [ ] Paste to `.env` as `GOOGLE_SHEETS_SPREADSHEET_ID`
 
@@ -367,7 +367,7 @@ volumes:
 - [ ] First test call completed successfully
 - [ ] Payment details delivered verbally and confirmed by tester
 - [ ] Compliance checks validated
-- [ ] Peter has edit access to Google Sheet
+- [ ] [CLIENT] has edit access to Google Sheet
 - [ ] Documentation shared with Peter
 
 **Phase 2 Additions (When Commissioned)**:

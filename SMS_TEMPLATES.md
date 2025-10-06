@@ -2,7 +2,7 @@
 
 **⚠️ PHASE 2 REFERENCE ONLY**
 
-This document contains SMS templates for **Phase 2** implementation ($2,000-$2,500).
+This document contains SMS templates for **Phase 2** implementation ($2,000-[PRICE REDACTED]).
 
 **Phase 1 scope** (current): Voice-only. Payment instructions are provided **verbally** during calls (see VAPI_ASSISTANT_CONFIGS.md for verbal payment instructions).
 
@@ -27,7 +27,7 @@ These SMS templates are sent to debtors after they agree to make payment. The AI
 
 **SMS Body**:
 ```
-Brodie Collection Services
+[COLLECTION AGENCY]
 
 Pay ${{amount}} now via credit card:
 {{STRIPE_PAYMENT_LINK}}
@@ -37,7 +37,7 @@ Questions? Call {{phone}}
 
 **Example** (with actual values):
 ```
-Brodie Collection Services
+[COLLECTION AGENCY]
 
 Pay $1,500.00 now via credit card:
 https://buy.stripe.com/test_7sI00g0Ub3Fg8Te000
@@ -47,7 +47,7 @@ Questions? Call +61412345678
 
 **Notes**:
 - Link expires in 24 hours (configure in Stripe)
-- Payment confirmation sent to Peter's email automatically
+- Payment confirmation sent to [CLIENT]'s email automatically
 - Debtor receives receipt via email from Stripe
 
 ---
@@ -58,7 +58,7 @@ Questions? Call +61412345678
 
 **SMS Body**:
 ```
-Brodie Collection Services
+[COLLECTION AGENCY]
 
 Bank Transfer Details:
 BSB: {{BSB_NUMBER}}
@@ -72,12 +72,12 @@ Questions? Call {{phone}}
 
 **Example** (with actual values):
 ```
-Brodie Collection Services
+[COLLECTION AGENCY]
 
 Bank Transfer Details:
 BSB: 123-456
 Account: 123456789
-Name: Brodie Collection Services Pty Ltd
+Name: [COLLECTION AGENCY] Pty Ltd
 Amount: $1,500.00
 Reference: INV-2024-001
 
@@ -85,7 +85,7 @@ Questions? Call +61412345678
 ```
 
 **Notes**:
-- Reference number critical (helps Peter match payment to debtor)
+- Reference number critical (helps [CLIENT] match payment to debtor)
 - Payment typically takes 1-2 business days
 - Debtor should email proof of payment to {{BCS_EMAIL}}
 
@@ -97,7 +97,7 @@ Questions? Call +61412345678
 
 **SMS Body**:
 ```
-Brodie Collection Services
+[COLLECTION AGENCY]
 
 Mail cheque (${{amount}}) to:
 {{BCS_MAILING_ADDRESS}}
@@ -109,10 +109,10 @@ Questions? Call {{phone}}
 
 **Example** (with actual values):
 ```
-Brodie Collection Services
+[COLLECTION AGENCY]
 
 Mail cheque ($1,500.00) to:
-Brodie Collection Services
+[COLLECTION AGENCY]
 123 Main Street
 Sydney NSW 2000
 
@@ -122,7 +122,7 @@ Questions? Call +61412345678
 ```
 
 **Notes**:
-- Cheque should be made payable to "Brodie Collection Services Pty Ltd"
+- Cheque should be made payable to "[COLLECTION AGENCY] Pty Ltd"
 - Include reference number on cheque memo line
 - Payment takes 5-7 business days to process
 
@@ -134,7 +134,7 @@ Questions? Call +61412345678
 
 **SMS Body**:
 ```
-Brodie Collection Services
+[COLLECTION AGENCY]
 
 Payment arrangements for ${{amount}}:
 Call {{phone}}
@@ -144,7 +144,7 @@ Reference: {{invoice_number}}
 
 **Example** (with actual values):
 ```
-Brodie Collection Services
+[COLLECTION AGENCY]
 
 Payment arrangements for $1,500.00:
 Call +61412345678
@@ -154,7 +154,7 @@ Reference: INV-2024-001
 
 **Notes**:
 - Used when AI couldn't determine payment method
-- Peter handles manually
+- [CLIENT] handles manually
 
 ---
 
@@ -177,7 +177,7 @@ let smsBody = '';
 
 switch(paymentMethod) {
   case 'credit_card':
-    smsBody = `Brodie Collection Services
+    smsBody = `[COLLECTION AGENCY]
 
 Pay $${amount} now via credit card:
 ${$vars.STRIPE_PAYMENT_LINK}
@@ -186,7 +186,7 @@ Questions? Call ${phone}`;
     break;
 
   case 'bank_transfer':
-    smsBody = `Brodie Collection Services
+    smsBody = `[COLLECTION AGENCY]
 
 Bank Transfer Details:
 BSB: ${$vars.BSB_NUMBER}
@@ -199,7 +199,7 @@ Questions? Call ${phone}`;
     break;
 
   case 'cheque':
-    smsBody = `Brodie Collection Services
+    smsBody = `[COLLECTION AGENCY]
 
 Mail cheque ($${amount}) to:
 ${$vars.BCS_MAILING_ADDRESS}
@@ -210,7 +210,7 @@ Questions? Call ${phone}`;
     break;
 
   default:
-    smsBody = `Brodie Collection Services
+    smsBody = `[COLLECTION AGENCY]
 
 Payment arrangements for $${amount}:
 Call ${phone}
@@ -285,7 +285,7 @@ To customize templates:
 ## Compliance Notes
 
 **Australian SMS Regulations**:
-- Must identify sender (Brodie Collection Services)
+- Must identify sender ([COLLECTION AGENCY])
 - Must provide opt-out method (reply STOP - handled by Twilio)
 - Must be sent during reasonable hours (7:30am-9pm)
 - Must be relevant to debt collection activity
@@ -298,7 +298,7 @@ To customize templates:
 
 - **Payment reminders**: Automated follow-up SMS if payment not received
 - **Payment confirmation**: SMS confirming payment received
-- **Two-way SMS**: Debtor can reply with questions, routed to Peter
+- **Two-way SMS**: Debtor can reply with questions, routed to [CLIENT]
 - **Multi-language**: Templates in languages other than English
 
 ---

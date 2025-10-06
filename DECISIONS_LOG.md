@@ -32,10 +32,10 @@ This document logs all significant technical decisions made during the project, 
 
 **Date**: October 3, 2025
 **Status**: ✅ Active
-**Decision maker**: Vlad Petoukhov
+**Decision maker**: [DEVELOPER NAME]
 
 **Context**:
-Need a telephony provider to handle outbound calling and AI voice agent integration. Project has tight timeline (28 days) and fixed budget ($2,500).
+Need a telephony provider to handle outbound calling and AI voice agent integration. Project has tight timeline (28 days) and fixed budget ([PRICE REDACTED]).
 
 **Decision**:
 Use Vapi.ai as the telephony and voice AI platform.
@@ -71,7 +71,7 @@ Use Vapi.ai as the telephony and voice AI platform.
 
 **Date**: October 3, 2025
 **Status**: ✅ Active
-**Decision maker**: Vlad Petoukhov (after discussion with user)
+**Decision maker**: [DEVELOPER NAME] (after discussion with user)
 
 **Context**:
 Originally planned to build custom Node.js backend with Express for webhooks and CRM integration. User suggested n8n as an alternative, noting they have existing boilerplate.
@@ -112,10 +112,10 @@ Use n8n (workflow automation platform) for all backend orchestration instead of 
 
 **Date**: October 3, 2025
 **Status**: ✅ Active
-**Decision maker**: Vlad Petoukhov
+**Decision maker**: [DEVELOPER NAME]
 
 **Context**:
-Need database to store AI call logs, call queue, and system configuration. CRM integration will be separate (Peter's existing CRM database).
+Need database to store AI call logs, call queue, and system configuration. CRM integration will be separate ([CLIENT]'s existing CRM database).
 
 **Decision**:
 Use PostgreSQL 15 for the AI bot's database.
@@ -147,7 +147,7 @@ Use PostgreSQL 15 for the AI bot's database.
 
 **Date**: October 3, 2025
 **Status**: ✅ Active
-**Decision maker**: Vlad Petoukhov
+**Decision maker**: [DEVELOPER NAME]
 
 **Context**:
 Need LLM to power the conversational voice agent. Voice calls require low latency (<500ms response time) for natural conversation.
@@ -185,7 +185,7 @@ If GPT-4o proves unreliable, can switch to Claude 3.5 Sonnet with minor Vapi con
 
 **Date**: October 3, 2025
 **Status**: ✅ Active
-**Decision maker**: Vlad Petoukhov (per user's request)
+**Decision maker**: [DEVELOPER NAME] (per user's request)
 
 **Context**:
 Need hosting solution for n8n + PostgreSQL. Project has limited budget, and client prefers Docker deployment.
@@ -229,10 +229,10 @@ Deploy to DigitalOcean Droplet using Docker Compose.
 
 **Date**: October 3, 2025
 **Status**: ✅ Active
-**Decision maker**: Vlad Petoukhov
+**Decision maker**: [DEVELOPER NAME]
 
 **Context**:
-AI voice agent will be calling Australian debtors on behalf of Australian company (Brodie Collection Services).
+AI voice agent will be calling Australian debtors on behalf of Australian company ([COLLECTION AGENCY]).
 
 **Decision**:
 Use Azure "en-AU-NatashaNeural" (female Australian accent) for voice synthesis.
@@ -256,15 +256,15 @@ Use Azure "en-AU-NatashaNeural" (female Australian accent) for voice synthesis.
 
 **Alternative voice**: "en-AU-WilliamNeural" (male) if client prefers
 
-**Next review**: After Peter hears test calls (Oct 16)
+**Next review**: After [CLIENT] hears test calls (Oct 16)
 
 ---
 
 ### Decision 007: Use Vapi-Provided Phone Number (Not Port Existing)
 
 **Date**: October 3, 2025
-**Status**: ⏳ Pending Peter's confirmation
-**Decision maker**: Vlad Petoukhov (recommendation)
+**Status**: ⏳ Pending [CLIENT]'s confirmation
+**Decision maker**: [DEVELOPER NAME] (recommendation)
 
 **Context**:
 Need Australian phone number for outbound calls. BCS currently uses mobile phones for all outbound calls.
@@ -278,7 +278,7 @@ Use Vapi-provided Australian phone number for Phase 1.
 
 **Rationale**:
 - **Time**: Vapi provides number instantly vs. 2-4 weeks for porting
-- **Risk**: Porting could disrupt Peter's current mobile phone usage
+- **Risk**: Porting could disrupt [CLIENT]'s current mobile phone usage
 - **Cost**: $10/month for Vapi number (acceptable)
 - **Flexibility**: Can port later if needed (after Phase 1 proven)
 
@@ -289,7 +289,7 @@ Use Vapi-provided Australian phone number for Phase 1.
 - ❌ New number may have lower answer rate initially (but improves over time)
 - ❌ Extra $10/month cost (minimal)
 
-**Status**: Awaiting Peter's confirmation
+**Status**: Awaiting [CLIENT]'s confirmation
 
 **Next review**: Oct 5 (need decision before Vapi setup)
 
@@ -299,34 +299,34 @@ Use Vapi-provided Australian phone number for Phase 1.
 
 **Date**: October 3, 2025
 **Status**: ✅ Active (Interim/Stopgap)
-**Decision maker**: Vlad Petoukhov (with user's agreement)
+**Decision maker**: [DEVELOPER NAME] (with user's agreement)
 
 **Context**:
-Peter's CRM database access delayed. Timeline is tight (28 days). Needed immediate solution to start development without waiting for credentials.
+[CLIENT]'s CRM database access delayed. Timeline is tight (28 days). Needed immediate solution to start development without waiting for credentials.
 
 **Decision**:
 Use Google Sheets as interim CRM for Phase 1 debtor tracking and call outcome logging.
 
 **Alternatives considered**:
-1. **Wait for Peter's CRM access**: Would block development for Week 1
-2. **Build custom database immediately**: Duplication of effort (Peter's CRM exists)
+1. **Wait for [CLIENT]'s CRM access**: Would block development for Week 1
+2. **Build custom database immediately**: Duplication of effort ([CLIENT]'s CRM exists)
 3. **Use mock/hard-coded data**: Not realistic for testing and demo
 
 **Rationale**:
 - Zero setup time (create spreadsheet in 5 minutes)
-- Peter can view/edit debtor data in real-time (transparency)
+- [CLIENT] can view/edit debtor data in real-time (transparency)
 - n8n has native Google Sheets integration (no custom code)
 - Easy migration path: swap Google Sheets node with PostgreSQL node later
 - Can export to CSV and import to real CRM when ready
 
 **Consequences**:
 - ✅ Unblocks Week 1 development completely
-- ✅ Peter can manually add/remove debtors easily
+- ✅ [CLIENT] can manually add/remove debtors easily
 - ✅ Real-time visibility for Peter
 - ✅ Simple 2-4 hour migration when CRM access provided
 - ❌ Limited scalability (acceptable for <1000 records, fine for Phase 1)
 - ❌ No relational integrity or constraints
-- ❌ Requires Google account (Peter likely has one)
+- ❌ Requires Google account ([CLIENT] likely has one)
 
 **Cost impact**: $0 (Google Sheets is free)
 
@@ -338,7 +338,7 @@ Use Google Sheets as interim CRM for Phase 1 debtor tracking and call outcome lo
 
 **Status**: INTERIM SOLUTION - Will be superseded when real CRM access provided
 
-**Next review**: When Peter provides CRM access (post-Phase 1)
+**Next review**: When [CLIENT] provides CRM access (post-Phase 1)
 
 ---
 
@@ -346,7 +346,7 @@ Use Google Sheets as interim CRM for Phase 1 debtor tracking and call outcome lo
 
 **Date**: October 3, 2025
 **Status**: ✅ Active
-**Decision maker**: Vlad Petoukhov
+**Decision maker**: [DEVELOPER NAME]
 
 **Context**:
 Vapi sends webhooks to n8n when calls end. Without authentication, anyone with the webhook URL could POST fake call outcomes, corrupting debtor data or triggering fraudulent SMS.
@@ -399,7 +399,7 @@ if (signature !== expectedSignature) {
 
 **Date**: October 3, 2025
 **Status**: ✅ Active
-**Decision maker**: Vlad Petoukhov
+**Decision maker**: [DEVELOPER NAME]
 
 **Context**:
 Google Sheets debtor data may have inconsistent phone formats: "0412 345 678", "+61 412 345 678", "61412345678". Vapi requires E.164 format (+61412345678) or calls will fail.
@@ -408,20 +408,20 @@ Google Sheets debtor data may have inconsistent phone formats: "0412 345 678", "
 Implement phone normalization function in Call Scheduler workflow (before Vapi API call).
 
 **Alternatives considered**:
-1. **Manual data entry validation**: Rely on Peter to enter correct format (error-prone)
+1. **Manual data entry validation**: Rely on [CLIENT] to enter correct format (error-prone)
 2. **Validate at Google Sheets level**: No native phone validation in Sheets
 3. **Normalize at read time**: Best approach (handles all edge cases)
 
 **Rationale**:
 - **Reliability**: Prevents call failures due to phone format errors
-- **User-friendly**: Peter can enter phone numbers in any common format
+- **User-friendly**: [CLIENT] can enter phone numbers in any common format
 - **Defensive programming**: Handle edge cases (spaces, dashes, parentheses)
 - **Australian-specific**: Auto-detect "04xx" format and convert to "+614xx"
 - **Zero cost**: Pure JavaScript function (no external service)
 
 **Consequences**:
 - ✅ Robust phone handling (no format-related call failures)
-- ✅ Better UX for Peter (no strict format requirements)
+- ✅ Better UX for [CLIENT] (no strict format requirements)
 - ✅ Handles edge cases (international format, local format, with/without spaces)
 - ❌ Small code complexity (30 lines)
 - ❌ Assumes Australian phone numbers (acceptable for Phase 1)
@@ -453,7 +453,7 @@ function normalizePhone(phone) {
 
 **Date**: October 3, 2025
 **Status**: ✅ Active
-**Decision maker**: Vlad Petoukhov
+**Decision maker**: [DEVELOPER NAME]
 
 **Context**:
 Call Scheduler runs every 30 minutes. If calls take >30 min to complete (e.g., debtor on long hold), same debtor could be called twice simultaneously (race condition).
@@ -501,10 +501,10 @@ Add `call_status` column to Google Sheets schema with values: null, "calling", "
 
 **Date**: October 3, 2025
 **Status**: ✅ Active
-**Decision maker**: Client (Peter) + Vlad Petoukhov
+**Decision maker**: Client (Peter) + [DEVELOPER NAME]
 
 **Context**:
-During implementation planning, a scope mismatch was identified. The original proposal (Sep 11, 2025) mentioned voice + SMS + email automation. However, the actual agreement (Sep 21, 2025) specified Phase 1 as "$2,500 + $500 bonus" for "Voice AI Agent (Outbound-first)" only. SMS and email automation were designated as Phase 2 ($2,000-$2,500), not yet commissioned.
+During implementation planning, a scope mismatch was identified. The original proposal (Sep 11, 2025) mentioned voice + SMS + email automation. However, the actual agreement (Sep 21, 2025) specified Phase 1 as "[PRICE REDACTED] + [BONUS REDACTED]" for "Voice AI Agent (Outbound-first)" only. SMS and email automation were designated as Phase 2 ($2,000-[PRICE REDACTED]), not yet commissioned.
 
 **Decision**:
 Phase 1 delivers voice-only outbound calling with verbal payment instructions. SMS and email automation deferred to Phase 2.
@@ -550,7 +550,7 @@ Phase 1 delivers voice-only outbound calling with verbal payment instructions. S
 - **Contract alignment**: Deliver exactly what was agreed to in Phase 1 contract
 - **Quality over quantity**: Focus on excellent voice experience first
 - **Staged rollout**: Reduce risk by implementing features in phases
-- **Budget control**: Stay within $2,500 + $500 bonus Phase 1 budget
+- **Budget control**: Stay within [PRICE REDACTED] + [BONUS REDACTED] Phase 1 budget
 - **Client preference**: Client confirmed "let's only do the original scope"
 
 **Consequences**:
@@ -573,14 +573,14 @@ When debtor agrees to pay:
 5. READY_TO_PAY outcome logged with payment method
 6. Follow-up call scheduled in 3 days to confirm payment received
 
-**Phase 2 scope** (when commissioned - $2,000-$2,500):
+**Phase 2 scope** (when commissioned - $2,000-[PRICE REDACTED]):
 - SMS automation (payment details, reminders)
 - Email automation (payment confirmations, follow-ups)
 - Two-way SMS communication
 - Management dashboard
 
 **Cost impact**:
-- Phase 1: $2,500 (10.5 hours) + potential $500 bonus
+- Phase 1: [PRICE REDACTED] (10.5 hours) + potential [BONUS REDACTED]
 - Savings: 3 hours of development time
 - Twilio costs deferred to Phase 2
 
@@ -623,7 +623,7 @@ Defer SMS and email automation to Phase 2.
 **Decision maker**: Client (Peter) + Vlad
 
 **Context**:
-Peter's current CRM lacks attachment support for letters and templates. Full rebuild may be needed long-term.
+[CLIENT]'s current CRM lacks attachment support for letters and templates. Full rebuild may be needed long-term.
 
 **Decision**:
 Defer CRM rebuild to Phase 3. Phase 1 will integrate with existing CRM.
@@ -638,7 +638,7 @@ Defer CRM rebuild to Phase 3. Phase 1 will integrate with existing CRM.
 - ✅ Lower cost and risk
 - ❌ Template management remains manual
 
-**Next review**: After Phase 1 (if Peter requests Phase 3 quote)
+**Next review**: After Phase 1 (if [CLIENT] requests Phase 3 quote)
 
 ---
 
@@ -648,7 +648,7 @@ Defer CRM rebuild to Phase 3. Phase 1 will integrate with existing CRM.
 
 **Date**: October 3, 2025
 **Status**: ⛔ Superseded by Decision 013 (moved to Phase 2)
-**Decision maker**: Vlad Petoukhov (with user's suggestion)
+**Decision maker**: [DEVELOPER NAME] (with user's suggestion)
 **Superseded by**: Decision 013 - Phase 1 Scope Clarification
 
 **Context**:
@@ -658,7 +658,7 @@ Need to deliver payment details to debtors who agree to pay. Verbal-only deliver
 Send payment links and details via SMS (Twilio) instead of verbal-only instructions.
 
 **Why Superseded**:
-Upon reviewing the original agreement (Sep 21, 2025), Phase 1 was confirmed to be voice-only ($2,500 + $500 bonus). SMS automation is Phase 2 ($2,000-$2,500). Payment instructions are now delivered verbally during calls with confirmation from debtor.
+Upon reviewing the original agreement (Sep 21, 2025), Phase 1 was confirmed to be voice-only ([PRICE REDACTED] + [BONUS REDACTED]). SMS automation is Phase 2 ($2,000-[PRICE REDACTED]). Payment instructions are now delivered verbally during calls with confirmation from debtor.
 
 **Replacement Approach**:
 - AI asks debtor if they have pen and paper ready
@@ -694,11 +694,11 @@ Upon reviewing the original agreement (Sep 21, 2025), Phase 1 was confirmed to b
 **Context**: When AI bot encounters complex scenario (e.g., debtor has lawyer), how should escalation work?
 
 **Options**:
-1. Transfer call to Peter's mobile (requires Vapi call forwarding)
+1. Transfer call to [CLIENT]'s mobile (requires Vapi call forwarding)
 2. End call and leave BCS callback number
 3. Flag for manual review, BCS calls back later
 
-**Status**: Awaiting Peter's preference
+**Status**: Awaiting [CLIENT]'s preference
 
 **Urgency**: Medium (need by Oct 14)
 
@@ -719,7 +719,7 @@ Upon reviewing the original agreement (Sep 21, 2025), Phase 1 was confirmed to b
 - Should system detect debtor timezone?
 - Any exceptions (e.g., no Sunday calls)?
 
-**Status**: Awaiting Peter's confirmation
+**Status**: Awaiting [CLIENT]'s confirmation
 
 **Urgency**: Medium (need by Oct 9)
 
@@ -733,7 +733,7 @@ Upon reviewing the original agreement (Sep 21, 2025), Phase 1 was confirmed to b
 - How many calls per day expected?
 - How many concurrent calls needed?
 
-**Status**: Awaiting Peter's estimate
+**Status**: Awaiting [CLIENT]'s estimate
 
 **Urgency**: Low (nice to have, not blocking)
 
@@ -799,10 +799,10 @@ Upon reviewing the original agreement (Sep 21, 2025), Phase 1 was confirmed to b
 |-------------------|-------|------------------------|
 | Tech stack | Vlad | None (within proposal scope) |
 | Architecture | Vlad | None (within proposal scope) |
-| UX/Tone | Vlad | Peter (client feedback) |
-| Budget allocation | Vlad | Peter (if exceeds $2,500) |
-| Scope changes | Peter | Both parties |
-| Post-Phase 1 work | Peter | N/A (separate contract) |
+| UX/Tone | Vlad | [CLIENT] (client feedback) |
+| Budget allocation | Vlad | [CLIENT] (if exceeds [PRICE REDACTED]) |
+| Scope changes | [CLIENT] | Both parties |
+| Post-Phase 1 work | [CLIENT] | N/A (separate contract) |
 
 ---
 
@@ -810,7 +810,7 @@ Upon reviewing the original agreement (Sep 21, 2025), Phase 1 was confirmed to b
 
 - [TECHNICAL_ARCHITECTURE.md](./TECHNICAL_ARCHITECTURE.md) - ADRs embedded in architecture doc
 - [DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md) - Timeline impact of decisions
-- [PENDING_ITEMS.md](./PENDING_ITEMS.md) - Pending decisions awaiting Peter's input
+- [PENDING_ITEMS.md](./PENDING_ITEMS.md) - Pending decisions awaiting [CLIENT]'s input
 
 ---
 

@@ -5,7 +5,7 @@
 **Project**: AI Debt Collection Bot - Phase 1
 **Version**: 2.0 (Added 3 new decision items from workflow adaptation analysis)
 **Last Updated**: October 3, 2025
-**Status**: Awaiting multiple inputs from Peter
+**Status**: Awaiting multiple inputs from [CLIENT]
 
 ---
 
@@ -13,33 +13,33 @@
 
 ### 1.1 CRM Database Access - ✅ SOLVED
 
-**Original Issue**: Needed Peter's CRM database access to store/retrieve debtor records
+**Original Issue**: Needed [CLIENT]'s CRM database access to store/retrieve debtor records
 
 **Solution**: **Google Sheets Interim CRM**
 - Created "BCS_Debtors" Google Sheet with full schema
 - n8n native integration (read/write via Google Sheets node)
-- Peter can view/edit data in real-time
+- [CLIENT] can view/edit data in real-time
 - Easy migration to real CRM later (swap n8n node)
 
 **Status**: ✅ NO LONGER BLOCKING
 
-**Future**: When Peter provides CRM access, will migrate from Google Sheets to real database (2-4 hour migration)
+**Future**: When [CLIENT] provides CRM access, will migrate from Google Sheets to real database (2-4 hour migration)
 
 ---
 
 ### 1.2 Call Scripts - ✅ SOLVED
 
-**Original Issue**: Needed finalized call scripts from Peter for Vapi configuration
+**Original Issue**: Needed finalized call scripts from [CLIENT] for Vapi configuration
 
 **Solution**: **Draft Scripts from Letter Templates**
 - Using Letter of Demand templates as basis
 - Drafting consumer + commercial scripts (1st/2nd/3rd calls)
 - Vapi assistants can be updated in 5 minutes (scripts are just configuration)
-- Will refine scripts with Peter's feedback after first test calls
+- Will refine scripts with [CLIENT]'s feedback after first test calls
 
 **Status**: ✅ NO LONGER BLOCKING
 
-**Future**: Peter can provide finalized scripts anytime, easy to update in Vapi
+**Future**: [CLIENT] can provide finalized scripts anytime, easy to update in Vapi
 
 ---
 
@@ -140,7 +140,7 @@
 
 ---
 
-## 3. Decisions Needed from Peter
+## 3. Decisions Needed from [CLIENT]
 
 ### 3.1 Phone Number for Outbound Calls
 
@@ -161,7 +161,7 @@
 **Question**: When AI bot needs to escalate to a human, what should happen?
 
 **Options**:
-- **Option A**: Transfer call to Peter's mobile (requires Vapi call forwarding setup)
+- **Option A**: Transfer call to [CLIENT]'s mobile (requires Vapi call forwarding setup)
 - **Option B**: End call and leave callback number for BCS
 - **Option C**: Flag for manual review, BCS calls debtor back later
 
@@ -215,7 +215,7 @@
 **Background**: Australia has 3 main timezones (AEST, ACST, AWST). Calling 7:30am Sydney time = 5:00am Perth time (non-compliant).
 
 **Options**:
-- **Option A**: Add `timezone` column to Google Sheets (Peter manually sets for each debtor)
+- **Option A**: Add `timezone` column to Google Sheets ([CLIENT] manually sets for each debtor)
 - **Option B**: Auto-detect from phone area code (complex, error-prone)
 - **Option C**: Assume all debtors in single timezone (risky if debtors nationwide)
 
@@ -347,7 +347,7 @@
 - [ ] Set up Vapi account
 - [ ] Create PostgreSQL database schema
 - [ ] Build n8n local development environment
-- [ ] Draft consumer/commercial scripts based on letter templates (for Peter's review)
+- [ ] Draft consumer/commercial scripts based on letter templates (for [CLIENT]'s review)
 - [ ] Create mock debtor data for testing
 
 ---
@@ -370,20 +370,20 @@
 |------|--------|-------|---------|
 | Sep 10 | Upwork | Project offer and scoping doc | Accepted |
 | Sep 11 | Google Docs | Proposal submitted | Positive response |
-| Sep 21 | Upwork | Budget negotiation | $2.5k + $500 bonus agreed |
+| Sep 21 | Upwork | Budget negotiation | $2.5k + [BONUS REDACTED] agreed |
 | Sep 22 | Upwork | Contract started | Active |
-| Sep 24 | Upwork | Email address exchange | peter@brodiecollectionservices.com.au |
+| Sep 24 | Upwork | Email address exchange | [CLIENT EMAIL] |
 | Sep 25 | Email | Information request sent | Awaiting response |
 | Sep 26 | Email | Templates and database link sent | Received (in spam folder) |
 | Oct 1 | Upwork | Progress update | Scaffolding complete |
-| Oct 2 | Upwork | Peter confirms receiving email | Resolved |
+| Oct 2 | Upwork | [CLIENT] confirms receiving email | Resolved |
 | Oct 3 | — | Documentation creation | In progress |
 
 ---
 
 ## 8. Next Steps - ✅ NO BLOCKERS
 
-### For Peter (Optional - Not Blocking Development):
+### For [CLIENT] (Optional - Not Blocking Development):
 
 **Nice to have by Oct 14**:
 1. Payment information (BSB, account number, Stripe link, mailing address)
@@ -437,7 +437,7 @@
 
 - [PROJECT_OVERVIEW.md](./PROJECT_OVERVIEW.md) - Project status and timeline
 - [DEVELOPMENT_PLAN.md](./DEVELOPMENT_PLAN.md) - Week-by-week deliverables and dependencies
-- [CONVERSATION_DESIGN.md](./CONVERSATION_DESIGN.md) - Placeholder scripts awaiting Peter's input
+- [CONVERSATION_DESIGN.md](./CONVERSATION_DESIGN.md) - Placeholder scripts awaiting [CLIENT]'s input
 - [TEMPLATES_ANALYSIS.md](./TEMPLATES_ANALYSIS.md) - Analysis of provided letter templates
 
 ---

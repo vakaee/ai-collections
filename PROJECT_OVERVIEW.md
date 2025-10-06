@@ -2,17 +2,17 @@
 
 ## Executive Summary
 
-Building an AI-powered voice bot for outbound debt collection calls on behalf of Brodie Collection Services (BCS), an Australian debt collection agency. The system will automate initial contact, follow-ups, and payment negotiations while maintaining strict compliance with Australian regulations.
+Building an AI-powered voice bot for outbound debt collection calls on behalf of [COLLECTION AGENCY] (BCS), an Australian debt collection agency. The system will automate initial contact, follow-ups, and payment negotiations while maintaining strict compliance with Australian regulations.
 
 ---
 
 ## Project Details
 
-**Client**: Peter Sikand
-**Company**: Brodie Collection Services (Australia)
-**Developer**: Vlad Petoukhov
+**Client**: [CLIENT NAME]
+**Company**: [COLLECTION AGENCY] (Australia)
+**Developer**: [DEVELOPER NAME]
 **Contract Platform**: Upwork
-**Budget**: $2,500 AUD (+ $500 bonus if successful)
+**Budget**: [PRICE REDACTED]
 **Timeline**: September 23, 2025 - October 31, 2025 (5 weeks)
 **Phase**: Phase 1 (Voice-first, outbound calls only)
 
@@ -21,26 +21,26 @@ Building an AI-powered voice bot for outbound debt collection calls on behalf of
 ## Stakeholders
 
 ### Primary Contact
-- **Name**: Peter Sikand
-- **Email**: peter@brodiecollectionservices.com.au
+- **Name**: [CLIENT NAME]
+- **Email**: [CLIENT EMAIL]
 - **Role**: Client, BCS Owner
 - **Availability**: Limited due to work commitments, prefers email communication
 
 ### Technical Contact
-- **Name**: Peter's brother (name TBD)
+- **Name**: [CLIENT]'s brother (name TBD)
 - **Role**: IT support, built current CRM
 - **Responsibility**: Provide CRM access/schema documentation
 
 ### Developer
-- **Name**: Vlad Petoukhov
-- **Email**: vlad@roleplaytribe.com
-- **Phone**: 416-835-0038
+- **Name**: [DEVELOPER NAME]
+- **Email**: [DEVELOPER EMAIL]
+- **Phone**: [DEVELOPER PHONE]
 
 ---
 
 ## Phase 1 Success Criteria
 
-Per Peter's definition, Phase 1 is complete when:
+Per [CLIENT]'s definition, Phase 1 is complete when:
 
 1. **Debt file allocation**: System can accept a debtor account for processing
 2. **Automated calling**: Outbound calls are made automatically
@@ -80,13 +80,13 @@ Per Peter's definition, Phase 1 is complete when:
 
 ### What We Have
 - Contract signed and active
-- Budget confirmed ($2,500 + $500 bonus)
+- Budget confirmed ([PRICE REDACTED] + [BONUS REDACTED])
 - Two Letter of Demand templates (consumer + commercial) received and analyzed
-- High-level requirements from Peter's scoping document
+- High-level requirements from [CLIENT]'s scoping document
 - Proposal accepted
 - Initial communication established
 
-### What We're Waiting For (from Peter)
+### What We're Waiting For (from [CLIENT])
 - Test CRM database access (credentials or API documentation)
 - Call scripts (1st/2nd/3rd call for consumer + commercial debtors)
 - SMS templates (1st/2nd/3rd message)
@@ -111,7 +111,7 @@ Per Peter's definition, Phase 1 is complete when:
 | OpenAI API (LLM calls) | $50 |
 | Database hosting (if needed) | $20 |
 | Contingency | $238 |
-| **TOTAL** | **$2,500** |
+| **TOTAL** | **[PRICE REDACTED]** |
 
 **Bonus**: $500 if Phase 1 is successful
 
@@ -122,7 +122,7 @@ Per Peter's definition, Phase 1 is complete when:
 ### Phase 2: Multi-Channel Expansion
 - SMS automation (3-tier progression)
 - Email automation (templated follow-ups)
-- Estimated cost: $2,000-$2,500
+- Estimated cost: $2,000-[PRICE REDACTED]
 
 ### Phase 3: CRM Rebuild (if required)
 - Custom CRM mirroring existing model
@@ -135,12 +135,12 @@ Per Peter's definition, Phase 1 is complete when:
 ## Key Constraints
 
 1. **Time**: 28 days remaining to deliver working system
-2. **Budget**: $2,500 fixed price
+2. **Budget**: [PRICE REDACTED] fixed price
 3. **Compliance**: Must adhere to Australian regulations (ASIC/ACCC)
 4. **CRM**: Limited attachment support in current system
 5. **Telephony**: All current calls made via mobile phones (no existing provider)
 6. **Human oversight**: Defaults remain manual decision
-7. **Peter's availability**: Limited time for meetings/reviews
+7. **[CLIENT]'s availability**: Limited time for meetings/reviews
 
 ---
 
@@ -159,8 +159,8 @@ Per Peter's definition, Phase 1 is complete when:
 
 ## Communication Protocol
 
-**Primary channel**: Email (Peter's preference)
-**Response time**: Peter may take 24-48 hours due to work commitments
+**Primary channel**: Email ([CLIENT]'s preference)
+**Response time**: [CLIENT] may take 24-48 hours due to work commitments
 **Meeting cadence**: As-needed basis (call when necessary for complex topics)
 **Status updates**: Weekly progress emails recommended
 
@@ -182,7 +182,7 @@ Once deployed, track:
 
 **Version**: 1.0
 **Last Updated**: October 3, 2025
-**Author**: Vlad Petoukhov
+**Author**: [DEVELOPER NAME]
 **Next Review**: October 10, 2025 (weekly cadence)
 
 ---

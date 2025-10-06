@@ -457,7 +457,7 @@ return { /* ... */ };
    - [ ] `next_action` = "MANUAL_REVIEW"
    - [ ] `assigned_to_ai` = FALSE (removed from AI queue)
 5. Check email:
-   - [ ] Peter received "Manual Review Required" email
+   - [ ] [CLIENT] received "Manual Review Required" email
    - [ ] Email contains debtor ID and dispute details
 
 **If Failed**: Check email node configuration, verify SMTP settings
@@ -713,7 +713,7 @@ Document any issues discovered:
 
 ### Approved By
 
-**Name**: Peter Sikand
+**Name**: [CLIENT NAME]
 **Date**: _________________
 **Signature**: _________________
 

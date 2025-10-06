@@ -5,7 +5,7 @@
 **Project**: AI Debt Collection Bot - Phase 1
 **Version**: 1.0
 **Last Updated**: October 3, 2025
-**Status**: Awaiting scripts from Peter
+**Status**: Awaiting scripts from [CLIENT]
 
 ---
 
@@ -13,7 +13,7 @@
 
 This document defines the conversation structure, call flows, objection handling, and outcome taxonomy for the AI debt collection voice bot.
 
-**Note**: Detailed scripts are pending from Peter. This document provides the framework and placeholders that will be populated once scripts are received.
+**Note**: Detailed scripts are pending from [CLIENT]. This document provides the framework and placeholders that will be populated once scripts are received.
 
 ---
 
@@ -23,7 +23,7 @@ This document defines the conversation structure, call flows, objection handling
 START
   ↓
 GREETING
-  - Identity disclosure: "This is [Agent] from Brodie Collection Services"
+  - Identity disclosure: "This is [Agent] from [COLLECTION AGENCY]"
   - Purpose statement: "This call is regarding a debt collection matter"
   - Recording notice: "This call may be recorded..."
   ↓
@@ -83,7 +83,7 @@ END_CALL                  LOG_OUTCOME
 
 ```
 [GREETING]
-Hello, this is [AGENT_NAME] calling from Brodie Collection Services. This call is regarding a debt collection matter and may be recorded for quality and compliance purposes.
+Hello, this is [AGENT_NAME] calling from [COLLECTION AGENCY]. This call is regarding a debt collection matter and may be recorded for quality and compliance purposes.
 
 [REQUEST_DEBTOR]
 May I please speak with [DEBTOR_NAME]?
@@ -197,7 +197,7 @@ This matter will now be flagged for escalation. You may still contact us at [BCS
 
 ```
 [GREETING]
-Good morning/afternoon, this is [AGENT_NAME] calling from Brodie Collection Services on behalf of [CREDITOR_NAME]. This call is regarding a commercial debt collection matter and may be recorded.
+Good morning/afternoon, this is [AGENT_NAME] calling from [COLLECTION AGENCY] on behalf of [CREDITOR_NAME]. This call is regarding a commercial debt collection matter and may be recorded.
 
 [REQUEST_CONTACT]
 May I please speak with [DEBTOR_NAME] or the accounts payable manager?
@@ -269,7 +269,7 @@ What email address should I send the form to?
 **Action**:
 - Log outcome: `HARDSHIP_CLAIMED`
 - Collect email address
-- Send hardship form template (Peter to provide)
+- Send hardship form template ([CLIENT] to provide)
 - Flag for manual review
 
 ---
@@ -489,7 +489,7 @@ Thank you for informing me. I'll note this and transfer you to a supervisor. We'
 ### 7.1 Consumer Voicemail
 
 ```
-Hello, this is [AGENT_NAME] from Brodie Collection Services calling for [DEBTOR_NAME]. This is regarding an important matter. Please return our call at [BCS_PHONE_NUMBER]. Again, that's [BCS_PHONE_NUMBER]. Thank you.
+Hello, this is [AGENT_NAME] from [COLLECTION AGENCY] calling for [DEBTOR_NAME]. This is regarding an important matter. Please return our call at [BCS_PHONE_NUMBER]. Again, that's [BCS_PHONE_NUMBER]. Thank you.
 ```
 
 **Note**: Do NOT mention "debt" or specific amount (privacy protection).
@@ -499,7 +499,7 @@ Hello, this is [AGENT_NAME] from Brodie Collection Services calling for [DEBTOR_
 ### 7.2 Commercial Voicemail
 
 ```
-Good morning/afternoon, this is [AGENT_NAME] from Brodie Collection Services calling for [CONTACT_NAME] at [COMPANY_NAME]. Please return our call regarding account [ACCOUNT_NUMBER] at [BCS_PHONE_NUMBER]. Thank you.
+Good morning/afternoon, this is [AGENT_NAME] from [COLLECTION AGENCY] calling for [CONTACT_NAME] at [COMPANY_NAME]. Please return our call regarding account [ACCOUNT_NUMBER] at [BCS_PHONE_NUMBER]. Thank you.
 ```
 
 ---
@@ -537,7 +537,7 @@ Good morning/afternoon, this is [AGENT_NAME] from Brodie Collection Services cal
 
 #### Credit Card Payment SMS
 ```
-Brodie Collection Services
+[COLLECTION AGENCY]
 
 Pay $1,500 now via credit card:
 [STRIPE_PAYMENT_LINK]
@@ -546,19 +546,19 @@ Questions? Call [BCS_PHONE]
 ```
 
 **Notes**:
-- Requires Stripe Payment Link setup (Peter to provide or Vlad to set up)
+- Requires Stripe Payment Link setup ([CLIENT] to provide or Vlad to set up)
 - Link can be generic (manual amount entry) or dynamic (pre-filled amount per debtor)
 
 ---
 
 #### Bank Transfer SMS
 ```
-Brodie Collection Services
+[COLLECTION AGENCY]
 Bank Transfer Details:
 
 BSB: XXX-XXX
 Account: XXXXXXXXX
-Account Name: Brodie Collection Services
+Account Name: [COLLECTION AGENCY]
 Reference: [DEBTOR_ID]
 Amount: $1,500
 
@@ -575,13 +575,13 @@ Questions? Call [BCS_PHONE]
 
 #### Cheque Payment SMS
 ```
-Brodie Collection Services
+[COLLECTION AGENCY]
 Mail cheque to:
 
 [BCS_ADDRESS]
 [SUBURB, STATE, POSTCODE]
 
-Payable to: Brodie Collection Services
+Payable to: [COLLECTION AGENCY]
 Amount: $1,500
 Reference: [DEBTOR_ID]
 
@@ -599,13 +599,13 @@ Questions? Call [BCS_PHONE]
 **If debtor says "I don't have SMS"** or Twilio send fails:
 
 **Bank transfer (verbal)**:
-"You can transfer funds to BSB [XXX-XXX], account number [XXXXXXXXX], account name Brodie Collection Services. Please use reference [DEBTOR_ID] so we can identify your payment. Would you like me to repeat that?"
+"You can transfer funds to BSB [XXX-XXX], account number [XXXXXXXXX], account name [COLLECTION AGENCY]. Please use reference [DEBTOR_ID] so we can identify your payment. Would you like me to repeat that?"
 
 **Credit card (verbal)**:
 "You can call our office at [BCS_PHONE] to process a credit card payment over the phone."
 
 **Cheque (verbal)**:
-"You can mail a cheque to [BCS_ADDRESS]. Please make it payable to Brodie Collection Services and include reference [DEBTOR_ID]."
+"You can mail a cheque to [BCS_ADDRESS]. Please make it payable to [COLLECTION AGENCY] and include reference [DEBTOR_ID]."
 
 ---
 
@@ -717,16 +717,16 @@ See [DEVELOPMENT_PLAN.md Section 4](./DEVELOPMENT_PLAN.md#4-testing-strategy) fo
 
 ## 13. Updates and Refinements
 
-**After receiving Peter's scripts**:
+**After receiving [CLIENT]'s scripts**:
 1. Replace all [PLACEHOLDER] text with actual details
 2. Update Vapi system prompts with finalized scripts
 3. Test all scripts with synthetic calls
-4. Iterate based on Peter's feedback
+4. Iterate based on [CLIENT]'s feedback
 
 **Version history**:
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
-| 1.0 | 2025-10-03 | Initial framework, awaiting Peter's scripts | Vlad Petoukhov |
+| 1.0 | 2025-10-03 | Initial framework, awaiting [CLIENT]'s scripts | [DEVELOPER NAME] |
 
 ---
 

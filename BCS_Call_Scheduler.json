@@ -28,31 +28,15 @@
     },
     {
       "parameters": {
-        "documentId": {
-          "__rl": true,
-          "value": "={{ $vars.GOOGLE_SHEETS_SPREADSHEET_ID }}",
-          "mode": "id"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "Sheet1",
-          "mode": "name"
-        },
-        "options": {
-          "range": "A2:W1000"
-        }
+        "operation": "readRows",
+        "sheetId": "={{ $vars.GOOGLE_SHEETS_SPREADSHEET_ID }}",
+        "range": "Sheet1!A2:W1000"
       },
       "id": "sheets-read-001",
       "name": "Read BCS Debtors",
       "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4,
-      "position": [240, 240],
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
-          "name": "Google Sheets account"
-        }
-      }
+      "typeVersion": 3,
+      "position": [240, 240]
     },
     {
       "parameters": {
@@ -86,42 +70,18 @@
     },
     {
       "parameters": {
-        "documentId": {
-          "__rl": true,
-          "value": "={{ $vars.GOOGLE_SHEETS_SPREADSHEET_ID }}",
-          "mode": "id"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "Sheet1",
-          "mode": "name"
-        },
         "operation": "update",
-        "dataMode": "autoMapInputData",
-        "options": {
-          "dataStartRow": "={{ $json.row_number }}",
-          "rawData": true
-        },
-        "columnsUi": {
-          "columnValues": [
-            {
-              "column": "call_status",
-              "value": "calling"
-            }
-          ]
-        }
+        "sheetId": "={{ $vars.GOOGLE_SHEETS_SPREADSHEET_ID }}",
+        "range": "Sheet1!M{{ $json.row_number }}",
+        "options": {},
+        "valueInputMode": "RAW",
+        "dataProperty": "={{ { call_status: 'calling' } }}"
       },
       "id": "sheets-update-001",
       "name": "Set call_status = calling",
       "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4,
-      "position": [1200, 240],
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
-          "name": "Google Sheets account"
-        }
-      }
+      "typeVersion": 3,
+      "position": [1200, 240]
     },
     {
       "parameters": {
@@ -185,46 +145,18 @@
     },
     {
       "parameters": {
-        "documentId": {
-          "__rl": true,
-          "value": "={{ $vars.GOOGLE_SHEETS_SPREADSHEET_ID }}",
-          "mode": "id"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": "Sheet1",
-          "mode": "name"
-        },
         "operation": "update",
-        "dataMode": "autoMapInputData",
-        "options": {
-          "dataStartRow": "={{ $node['Normalize Phone & Prepare Variables'].json.row_number }}",
-          "rawData": true
-        },
-        "columnsUi": {
-          "columnValues": [
-            {
-              "column": "call_status",
-              "value": ""
-            },
-            {
-              "column": "notes",
-              "value": "={{ $node['Normalize Phone & Prepare Variables'].json.notes || '' }}\\n[{{ $now.toISO() }}] Vapi call failed: {{ $json.error || 'Unknown error' }}"
-            }
-          ]
-        }
+        "sheetId": "={{ $vars.GOOGLE_SHEETS_SPREADSHEET_ID }}",
+        "range": "Sheet1!M{{ $node['Normalize Phone & Prepare Variables'].json.row_number }}:W{{ $node['Normalize Phone & Prepare Variables'].json.row_number }}",
+        "options": {},
+        "valueInputMode": "RAW",
+        "dataProperty": "={{ [['', ($node['Normalize Phone & Prepare Variables'].json.notes || '') + '\\n[' + $now.toISO() + '] Vapi call failed: ' + ($json.error || 'Unknown error')]] }}"
       },
       "id": "sheets-reset-001",
       "name": "Reset call_status (on error)",
       "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4,
-      "position": [1920, 400],
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "{{GOOGLE_SHEETS_CREDENTIAL_ID}}",
-          "name": "Google Sheets account"
-        }
-      }
+      "typeVersion": 3,
+      "position": [1920, 400]
     }
   ],
   "pinData": {},
@@ -319,9 +251,7 @@
     },
     "IF - Call Successful?": {
       "main": [
-        [
-          null
-        ],
+        [],
         [
           {
             "node": "Reset call_status (on error)",

@@ -5,7 +5,7 @@
 **Project**: AI Debt Collection Bot - Phase 1
 **Version**: 1.0
 **Last Updated**: October 3, 2025
-**Status**: Draft (pending Peter's CRM access and scripts)
+**Status**: Draft (pending [CLIENT]'s CRM access and scripts)
 
 ---
 
@@ -89,7 +89,7 @@
 ### 1.4 Compliance & Mandatory Disclosures
 
 **REQ-012**: System shall make mandatory disclosures on EVERY call:
-1. Identity disclosure: "This is [Agent Name] calling from Brodie Collection Services"
+1. Identity disclosure: "This is [Agent Name] calling from [COLLECTION AGENCY]"
 2. Purpose statement: "This call is regarding a debt collection matter"
 3. Recording notice: "This call may be recorded for quality and compliance purposes"
 
@@ -253,7 +253,7 @@
 
 **ASS-001**: CRM database is accessible via direct connection or API
 
-**ASS-002**: Peter will provide all necessary scripts, templates, and compliance guidance
+**ASS-002**: [CLIENT] will provide all necessary scripts, templates, and compliance guidance
 
 **ASS-003**: Payment processing exists externally (bot redirects, does not process payments)
 
@@ -271,11 +271,11 @@
 
 ## 4. Constraints
 
-**CON-001**: Budget is fixed at $2,500 (+$500 bonus)
+**CON-001**: Budget is fixed at [PRICE REDACTED] (+[BONUS REDACTED])
 
 **CON-002**: Deadline is October 31, 2025 (28 days remaining)
 
-**CON-003**: Peter has limited availability for meetings/reviews
+**CON-003**: [CLIENT] has limited availability for meetings/reviews
 
 **CON-004**: Current CRM lacks attachment/template support (workaround required)
 
@@ -283,7 +283,7 @@
 
 **CON-006**: AI cannot execute defaults (human decision required)
 
-**CON-007**: Phase 1 is voice-only per original agreement ($2,500 + $500 bonus). SMS/email automation deferred to Phase 2 ($2,000-$2,500)
+**CON-007**: Phase 1 is voice-only per original agreement ([PRICE REDACTED] + [BONUS REDACTED]). SMS/email automation deferred to Phase 2 ($2,000-[PRICE REDACTED])
 
 ---
 
@@ -329,13 +329,13 @@
 
 ## 6. Out of Scope (Phase 1)
 
-**Note**: Phase 1 is voice-only outbound calling per original agreement ($2,500 + $500 bonus).
+**Note**: Phase 1 is voice-only outbound calling per original agreement ([PRICE REDACTED] + [BONUS REDACTED]).
 
 **OOS-001**: Inbound call handling (not in Phase 1 agreement)
 
-**OOS-002**: SMS automation (Phase 2: $2,000-$2,500)
+**OOS-002**: SMS automation (Phase 2: $2,000-[PRICE REDACTED])
 
-**OOS-003**: Email automation (Phase 2: $2,000-$2,500)
+**OOS-003**: Email automation (Phase 2: $2,000-[PRICE REDACTED])
 
 **OOS-004**: Management dashboard/analytics (Phase 2)
 
@@ -362,12 +362,12 @@ System is considered complete when:
 7. ✅ Objection handling works (dispute, hardship, payment negotiation)
 8. ✅ Human escalation triggers function properly
 9. ✅ Call recordings are stored and accessible
-10. ✅ Peter can review call outcomes and transcripts
+10. ✅ [CLIENT] can review call outcomes and transcripts
 
-**Bonus criteria** (for $500 bonus):
+**Bonus criteria** (for [BONUS REDACTED]):
 - Zero compliance violations in first 50 calls
 - 80%+ successful contact rate (excluding wrong numbers)
-- Positive feedback from Peter on call quality
+- Positive feedback from [CLIENT] on call quality
 
 ---
 
@@ -375,9 +375,9 @@ System is considered complete when:
 
 **DEP-001**: CRM database access (blocking development)
 
-**DEP-002**: Call scripts from Peter (blocking conversation design)
+**DEP-002**: Call scripts from [CLIENT] (blocking conversation design)
 
-**DEP-003**: SMS templates from Peter (for follow-up actions)
+**DEP-003**: SMS templates from [CLIENT] (for follow-up actions)
 
 **DEP-004**: Registered email address for disputes
 
@@ -395,15 +395,15 @@ System is considered complete when:
 
 | Date | Version | Changes | Author |
 |------|---------|---------|--------|
-| 2025-10-03 | 1.0 | Initial requirements document | Vlad Petoukhov |
+| 2025-10-03 | 1.0 | Initial requirements document | [DEVELOPER NAME] |
 
 ---
 
 ## 10. Approval
 
-**Pending approval from**: Peter Sikand
+**Pending approval from**: [CLIENT NAME]
 
-**Review date**: TBD (after Peter reviews this document)
+**Review date**: TBD (after [CLIENT] reviews this document)
 
 ---
 

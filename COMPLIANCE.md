@@ -28,7 +28,7 @@
 **These must be made on EVERY call, verbatim or substantially similar:**
 
 1. **Identity Disclosure**:
-   - "This is [Agent Name] calling from Brodie Collection Services."
+   - "This is [Agent Name] calling from [COLLECTION AGENCY]."
    - Must include: Agent name + Company name
 
 2. **Purpose Statement**:
@@ -106,7 +106,7 @@
 **Public Holidays**:
 - No calls (or same as weekends, confirm with ASIC guidelines)
 
-**Time Zone**: AEST or ACST (confirm with Peter which states debtors are located in)
+**Time Zone**: AEST or ACST (confirm with [CLIENT] which states debtors are located in)
 
 **Implementation**: n8n "Business Hours Check" code node (see TECHNICAL_ARCHITECTURE.md)
 
@@ -143,7 +143,7 @@
 **AI bot response**:
 - "I understand you're experiencing financial difficulty. I can send you a financial hardship form to complete. What email address should I send it to?"
 - Log outcome: HARDSHIP_CLAIMED
-- Send hardship form (Peter to provide template)
+- Send hardship form ([CLIENT] to provide template)
 - Pause collection until hardship assessment complete (manual review)
 
 ---
@@ -276,7 +276,7 @@
 
 ### 12.1 Initial Review (First 50 Calls)
 
-**Who**: Vlad (developer) + Peter (client)
+**Who**: Vlad (developer) + [CLIENT] (client)
 
 **Process**:
 1. Listen to all call recordings
@@ -293,7 +293,7 @@
 
 **Frequency**: Weekly spot checks (10% of calls)
 
-**Who**: Peter or designated BCS staff
+**Who**: [CLIENT] or designated BCS staff
 
 **Red flags to watch for**:
 - Missing mandatory disclosures
@@ -375,7 +375,7 @@
 **When regulations change**:
 - Update Vapi system prompts immediately
 - Document in DECISIONS_LOG.md
-- Notify Peter of any impacts
+- Notify [CLIENT] of any impacts
 
 ---
 

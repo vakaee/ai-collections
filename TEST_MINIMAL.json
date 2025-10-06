@@ -1,0 +1,17 @@
+{
+  "name": "TEST Minimal",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "test-001",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0]
+    }
+  ],
+  "connections": {},
+  "active": false,
+  "settings": {},
+  "id": "test_minimal"
+}

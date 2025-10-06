@@ -612,7 +612,7 @@ return {
 **Configuration**:
 - Condition: `{{$node['Code - Calculate Next Action'].json.next_action}}` equals "MANUAL_REVIEW"
 
-### 4.9 Node 9: Email - Notify Peter (if true)
+### 4.9 Node 9: Email - Notify [CLIENT] (if true)
 
 **Configuration**:
 - To: `{{$vars.BCS_EMAIL}}`
@@ -796,7 +796,7 @@ const signature = crypto.createHmac('sha256', $vars.VAPI_WEBHOOK_SECRET).update(
 
 **Example prompt**:
 ```
-You are calling on behalf of Brodie Collection Services regarding a debt.
+You are calling on behalf of [COLLECTION AGENCY] regarding a debt.
 
 Debtor name: {{debtor_name}}
 Amount owed: ${{amount}}
@@ -840,10 +840,10 @@ GOOGLE_SHEETS_CREDENTIALS=service_account_json
 STRIPE_PAYMENT_LINK=https://buy.stripe.com/xxxxx
 BSB_NUMBER=123-456
 ACCOUNT_NUMBER=123456789
-ACCOUNT_NAME=Brodie Collection Services Pty Ltd
+ACCOUNT_NAME=[COLLECTION AGENCY] Pty Ltd
 BCS_MAILING_ADDRESS=123 Main St, Sydney NSW 2000
 BCS_PHONE_NUMBER=+61xxxxxxxxx
-BCS_EMAIL=peter@brodiecollectionservices.com.au
+BCS_EMAIL=[CLIENT EMAIL]
 
 # n8n Webhooks
 WEBHOOK_VAPI_HANDLER=https://n8n.yourdomain.com/webhook/vapi-handler
@@ -886,7 +886,7 @@ WEBHOOK_SMS_STATUS=https://n8n.yourdomain.com/webhook/sms-status
 
 **Test 3: Manual Review Notification**
 1. Trigger test webhook with outcome="DISPUTE_RAISED"
-2. Verify email sent to Peter
+2. Verify email sent to [CLIENT]
 3. Verify assigned_to_ai set to FALSE
 
 ### 8.3 Compliance Tests
@@ -945,7 +945,7 @@ WEBHOOK_SMS_STATUS=https://n8n.yourdomain.com/webhook/sms-status
 - [ ] Test call completed successfully
 - [ ] Payment instructions delivered verbally and confirmed by tester
 - [ ] Compliance checks validated
-- [ ] Peter trained on Google Sheets workflow
+- [ ] [CLIENT] trained on Google Sheets workflow
 
 **Phase 2 additions (when commissioned)**:
 - [ ] Twilio account created and SMS workflows added
@@ -971,14 +971,14 @@ WEBHOOK_SMS_STATUS=https://n8n.yourdomain.com/webhook/sms-status
 
 ## 12. Phase 2 Enhancements (When Commissioned)
 
-**Estimate**: 15-18 hours, $2,000-$2,500
+**Estimate**: 15-18 hours, $2,000-[PRICE REDACTED]
 
 1. **SMS Automation**: Payment SMS (4 templates) + delivery tracking
 2. **Email Automation**: Dispute/hardship forms + manual review notifications
 3. **Inbound Call Handling**: Route to appropriate assistant based on debtor type
 4. **Management Dashboard**: Call metrics, outcome distribution, review queue
 5. **Advanced Features** (Phase 3 if needed):
-   - Real CRM migration (Google Sheets → Peter's CRM)
+   - Real CRM migration (Google Sheets → [CLIENT]'s CRM)
    - Do-Not-Call Registry API integration
    - Call recording archival (DigitalOcean Spaces)
    - Multi-language support

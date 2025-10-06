@@ -11,15 +11,15 @@
 
 ## 1. Overview
 
-**Decision**: Use Google Sheets as interim CRM for Phase 1 to avoid waiting for Peter's database access.
+**Decision**: Use Google Sheets as interim CRM for Phase 1 to avoid waiting for [CLIENT]'s database access.
 
 **Rationale**:
 - Zero setup time (no waiting for credentials)
-- Easy for Peter to view/edit/export data
+- Easy for [CLIENT] to view/edit/export data
 - Native n8n integration (Google Sheets node)
 - Simple migration path to real CRM later
 
-**Migration plan**: Once Peter provides CRM access, swap Google Sheets node with PostgreSQL/MySQL node in n8n workflows. Data can be exported to CSV and imported to real CRM.
+**Migration plan**: Once [CLIENT] provides CRM access, swap Google Sheets node with PostgreSQL/MySQL node in n8n workflows. Data can be exported to CSV and imported to real CRM.
 
 ---
 
@@ -29,7 +29,7 @@
 
 **Sheet Name**: "BCS_Debtors"
 
-**Google Drive Location**: Share with Peter (edit access)
+**Google Drive Location**: Share with [CLIENT] (edit access)
 
 **Access**:
 - Peter: Owner (can edit debtor data manually)
@@ -206,7 +206,7 @@ return {
 
 ## 4. Migration Plan (Future)
 
-### 4.1 When Peter Provides Real CRM Access
+### 4.1 When [CLIENT] Provides Real CRM Access
 
 **Step 1**: Export Google Sheets to CSV
 - Download BCS_Debtors sheet
@@ -232,8 +232,8 @@ return {
 ## 5. Advantages of Google Sheets Approach
 
 ✅ **Immediate start**: No waiting for credentials
-✅ **Visibility**: Peter can see all data in real-time
-✅ **Manual editing**: Peter can add/remove debtors easily
+✅ **Visibility**: [CLIENT] can see all data in real-time
+✅ **Manual editing**: [CLIENT] can add/remove debtors easily
 ✅ **Export**: Easy to export to CSV for backup or migration
 ✅ **Collaboration**: Can share with BCS staff for review
 ✅ **Audit trail**: Google Sheets version history
@@ -249,7 +249,7 @@ return {
 
 ---
 
-## 7. Peter's Workflow
+## 7. [CLIENT]'s Workflow
 
 ### 7.1 Adding New Debtor Accounts
 
@@ -276,7 +276,7 @@ return {
 3. Review `last_outcome` and `notes` columns
 
 **Flag for manual action**:
-- If `next_action = MANUAL_REVIEW`, Peter reviews and decides next steps
+- If `next_action = MANUAL_REVIEW`, [CLIENT] reviews and decides next steps
 
 ---
 
@@ -296,9 +296,9 @@ return {
 ## 8. Security Considerations
 
 **Access control**:
-- Peter owns spreadsheet (full control)
+- [CLIENT] owns spreadsheet (full control)
 - n8n service account has Editor role (read/write only)
-- No public sharing (private to Peter + n8n)
+- No public sharing (private to [CLIENT] + n8n)
 
 **Data privacy**:
 - Spreadsheet contains PII (names, DOB, phone numbers)
@@ -308,7 +308,7 @@ return {
 **Backup**:
 - Google Sheets auto-saves
 - Version history available (File → Version history)
-- Peter should download CSV backup weekly
+- [CLIENT] should download CSV backup weekly
 
 ---
 
@@ -351,7 +351,7 @@ Add 3-5 test rows:
 
 ## 11. Future: Real CRM Integration
 
-**Once Peter provides CRM access**, refer to original CRM_INTEGRATION.md draft for:
+**Once [CLIENT] provides CRM access**, refer to original CRM_INTEGRATION.md draft for:
 - PostgreSQL/MySQL connection setup
 - Direct database queries
 - Schema mapping
