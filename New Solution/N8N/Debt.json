@@ -1,0 +1,1281 @@
+{
+  "name": "Debt",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "6cc8a1ed-01ca-4ae4-bdaf-c577892ec5cf",
+      "name": "Every 30 Minutes",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        -464
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "7534f278-0d85-4189-b8f2-24fd1e07b1e8",
+      "name": "Manual Trigger (for testing)",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        -272
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48",
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1813436853,
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template.csv",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit#gid=1813436853"
+        },
+        "options": {}
+      },
+      "id": "ed07cdef-eb8d-46e4-88c9-4f61e32a8297",
+      "name": "Read BCS Debtors",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        -96,
+        -416
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IujUIm76YJeSkM1S",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Filter & Validate Debtors\n// Based on WORKFLOW_ADAPTATION_PLAN.md Section 3.3 with all fixes applied\n\nconst items = $input.all();\nconst now = new Date();\n\n// Business hours configuration\nconst BUSINESS_HOURS = {\n  AEST: { weekday: { start: 7.5, end: 21 }, weekend: { start: 9, end: 21 } },\n  ACST: { weekday: { start: 7.5, end: 21 }, weekend: { start: 9, end: 21 } },\n  AWST: { weekday: { start: 7.5, end: 21 }, weekend: { start: 9, end: 21 } }\n};\n\n// Timezone offsets from UTC\nconst TIMEZONE_OFFSETS = {\n  AEST: 10,\n  ACST: 9.5,\n  AWST: 8\n};\n\nfunction isBusinessHours(timezone) {\n  const offset = TIMEZONE_OFFSETS[timezone] || 10; // Default AEST\n  const localTime = new Date(now.getTime() + offset * 3600000);\n  const hour = localTime.getHours() + localTime.getMinutes() / 60;\n  const day = localTime.getDay();\n  const isWeekend = day === 0 || day === 6;\n\n  const hours = BUSINESS_HOURS[timezone] || BUSINESS_HOURS.AEST;\n  const schedule = isWeekend ? hours.weekend : hours.weekday;\n\n  return hour >= schedule.start && hour < schedule.end;\n}\n\nconst filtered = items.filter(item => {\n  const data = item.json;\n\n  // Must be assigned to AI\n  if (data.assigned_to_ai !== 'TRUE' && data.assigned_to_ai !== true) return false;\n\n  // Must be unpaid\n  if (data.payment_status !== 'unpaid') return false;\n\n  // Must not be currently calling (duplicate prevention)\n  if (data.call_status === 'calling') return false;\n\n  // Must not be on do-not-call list\n  if (data.do_not_call === 'TRUE' || data.do_not_call === true) return false;\n\n  // Must have valid attempt number (1-3)\n  const attemptNumber = parseInt(data.attempt_number) || 1;\n  if (attemptNumber > 3) return false;\n\n  // Must be scheduled for now or past\n  if (data.next_call_date) {\n    const nextCallDate = new Date(data.next_call_date);\n    if (nextCallDate > now) return false;\n  }\n\n  // Must be within business hours for debtor's timezone\n  const timezone = data.timezone || 'AEST';\n  // console.log(\"business hour test\" + isBusinessHours(timezone));\n if(!isBusinessHours(timezone)) \n   return false;\n  \n\n  return true;\n});\n\nreturn filtered;"
+      },
+      "id": "e1e8a013-c8c0-4d71-b3ca-1e9a26aff28b",
+      "name": "Filter & Validate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        96,
+        -416
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "4d50f35a-b333-481e-8d7f-299bbdb3c56a",
+      "name": "Split Into Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        320,
+        -544
+      ],
+      "alwaysOutputData": false,
+      "oncePerBatch": false
+    },
+    {
+      "parameters": {
+        "jsCode": "// Normalize Phone & Prepare Vapi Variables\n// Based on WORKFLOW_ADAPTATION_PLAN.md Section 3.5 with FIX #1 and #3 applied\n\nconst data = $input.first().json;\n\n// Phone normalization function (robust E.164 conversion)\nfunction normalizePhone(phone) {\n  if (!phone) return null;\n\n  // Remove spaces, dashes, parentheses\n  let cleaned = phone.toString().replace(/[\\s\\-\\(\\)]/g, '');\n\n  // Convert Australian 04xx to +614xx\n  if (cleaned.startsWith('04')) {\n    cleaned = '+61' + cleaned.substring(1);\n  }\n\n  // Convert Australian 61 to +61\n  if (cleaned.startsWith('61') && !cleaned.startsWith('+')) {\n    cleaned = '+61' + cleaned;\n  }\n\n  // Add + if missing (assume Australian)\n  if (!cleaned.startsWith('+')) {\n    cleaned = '+61' + cleaned;\n  }\n\n  return cleaned;\n}\n\n// Assistant selection (6 assistants based on debtor type and attempt number)\nconst debtorType = (data.debtor_type || 'consumer').toLowerCase();\nconst attemptNumber = parseInt(data.attempt_number) || 1;\n\nconst assistantMap = {\n  'consumer_1': $vars.VAPI_CONSUMER_1,\n  'consumer_2': $vars.VAPI_CONSUMER_2,\n  'consumer_3': $vars.VAPI_CONSUMER_3,\n  'commercial_1': $vars.VAPI_COMMERCIAL_1,\n  'commercial_2': $vars.VAPI_COMMERCIAL_2,\n  'commercial_3': $vars.VAPI_COMMERCIAL_3\n};\nconst assistantKey = `${debtorType}_${attemptNumber}`;\nconst assistantId = assistantMap[assistantKey];\n\nif (!assistantId) {\n  throw new Error(`No assistant found for ${assistantKey}`);\n}\n\n// Prepare Vapi call payload\nreturn {\n  debtor_id: data.debtor_id,\n  row_number: data.__rowNum__, // FIX #1: Use n8n's built-in row number (survives filtering)\n  phone_normalized: normalizePhone(data.phone),\n  phone_original: data.phone,\n  assistant_id: assistantId,\n  vapi_payload: {\n    assistantId: assistantId,\n    customer: {\n      number: normalizePhone(data.phone)\n    },\n    phoneNumberId: $vars.VAPI_PHONE_NUMBER_ID, // FIX #3: Use ID not phone number\n    assistantOverrides: {\n      variableValues: {\n        debtor_id: data.debtor_id.toString(),\n        debtor_name: data.name,\n        amount: data.amount.toString(),\n        creditor: data.creditor,\n        invoice_number: data.invoice_number,\n        dob: data.dob || '',\n        abn: data.abn || '',\n        attempt_number: attemptNumber.toString(),\n        collection_agency: $vars.ACCOUNT_NAME,\n        bcs_phone_number: $vars.BCS_PHONE_NUMBER,\n        stripe_payment_link: $vars.STRIPE_PAYMENT_LINK,\n        bcs_mailing_address: $vars.BCS_MAILING_ADDRESS,\n        agent_name: \t$vars.AGENT_NAME,\n        Bank_name: $vars.BANK_NAME,\n        BSB: $vars.BSB_NUMBER,\n        Account_Number: $vars.ACCOUNT_NUMBER\n      }\n    }\n  }\n};"
+      },
+      "id": "095b64c5-276b-40e5-80f2-620ff2aff864",
+      "name": "Normalize Phone & Prepare Variables",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        -528
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48",
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1813436853,
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template.csv",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit#gid=1813436853"
+        },
+        "columnToMatchOn": "debtor_id",
+        "valueToMatchOn": "={{ $json.debtor_id }}",
+        "fieldsUi": {
+          "values": [
+            {
+              "column": "call_status",
+              "fieldValue": "calling"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "080f3182-8964-4222-a71a-3f7971f30aef",
+      "name": "Set call_status = calling",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        768,
+        -480
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IujUIm76YJeSkM1S",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vapi.ai/call/phone",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.VAPI_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($node['Normalize Phone & Prepare Variables'].json.vapi_payload) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "c0ad4791-0239-48ac-8018-1a44611421df",
+      "name": "Call Vapi API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        -464
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "condition-001",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0d9fbfc4-557a-4171-ad51-9b0b0975fe82",
+      "name": "IF - Call Successful?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        -448
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate Test Vapi Webhook Payload\n// Based on WORKFLOW_ADAPTATION_PLAN.md Section 7.2 with FIX #6\n\nconst crypto = require('crypto');\n\n// Test debtor data\nconst testDebtorId = 'TEST-001';\nconst testOutcome = 'READY_TO_PAY';\nconst testPaymentMethod = 'credit_card';\n\n// Build mock Vapi webhook payload (FIX #6: Updated structure)\nconst payload = {\n  message: {\n    type: 'end-of-call-report',\n    call: {\n      id: `test-call-${Date.now()}`,\n      status: 'ended',\n      endedReason: 'assistant-ended-call',\n      assistantOverrides: {\n        variableValues: {\n          debtor_id: testDebtorId,\n          debtor_name: 'Test Debtor',\n          amount: '1500.00',\n          creditor: 'Test Creditor Pty Ltd',\n          invoice_number: 'INV-TEST-001',\n          attempt_number: '1'\n        }\n      }\n    },\n    artifact: {\n      messages: [\n        {\n          role: 'assistant',\n          message: 'Test call completed',\n          toolCalls: [\n            {\n              id: `tool-call-${Date.now()}`,\n              type: 'function',\n              function: {\n                name: 'log_outcome',\n                arguments: JSON.stringify({\n                  outcome: testOutcome,\n                  payment_method: testPaymentMethod,\n                  promised_date: null,\n                  notes: 'Test webhook - debtor ready to pay via credit card'\n                })\n              }\n            }\n          ]\n        }\n      ],\n      recordingUrl: null,\n      transcript: 'Test transcript placeholder'\n    }\n  }\n};\n\n// Generate HMAC signature\nconst secret = $vars.VAPI_WEBHOOK_SECRET;\nconst payloadString = JSON.stringify(payload);\nconst signature = crypto\n  .createHmac('sha256', secret)\n  .update(payloadString)\n  .digest('hex');\n\nreturn {\n  payload: payload,\n  signature: signature,\n  webhook_url: $vars.WEBHOOK_VAPI_HANDLER,\n  test_scenario: `${testOutcome} - ${testPaymentMethod}`\n};"
+      },
+      "id": "3499957a-b7e3-4474-bfee-61ced66ac09d",
+      "name": "Generate Test Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -368,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.webhook_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Vapi-Signature",
+              "value": "={{ $json.signature }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.payload) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "65fd2b5f-db1a-4226-9f78-5f6f0c73c9f9",
+      "name": "Send to Vapi Handler",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -144,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Display Test Results\nconst response = $input.item.json;\nconst statusCode = $input.item.statusCode || 0;\n\nconst testScenario = $node['Generate Test Payload'].json.test_scenario;\n\nconsole.log('===== TEST WEBHOOK RESULTS =====');\nconsole.log(`Scenario: ${testScenario}`);\nconsole.log(`Status Code: ${statusCode}`);\nconsole.log(`Response:`, JSON.stringify(response, null, 2));\nconsole.log('===== END RESULTS =====');\n\nreturn {\n  test_scenario: testScenario,\n  status_code: statusCode,\n  success: statusCode >= 200 && statusCode < 300,\n  response: response\n};"
+      },
+      "id": "a84f1b8b-04f3-40f5-900a-e0e8ad9d98b8",
+      "name": "Display Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vapi-handler",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "719bae73-5d1a-4f20-81e6-da74ca0c27bb",
+      "name": "Webhook - Vapi End-of-Call",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -368,
+        272
+      ],
+      "webhookId": "vapi-handler"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "id": "d71e9ab6-1f19-467b-84e0-a214d16f3656",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Verify Webhook Signature\n// Based on WORKFLOW_ADAPTATION_PLAN.md Section 4.2 with FIX #2 applied\n\nconst crypto = require('crypto');\n\nconst headers = Object($input.first().json.headers || {});\nconst signature = headers['x-signature'] ||  null;\n// FIX #2: Header name is 'X-Vapi-Signature' (capital X) - verified from Vapi docs\n\nconst secret = $vars.VAPI_WEBHOOK_SECRET;\nconst timestamp = headers['x-timestamp'] || headers['X-Timestamp'];\nconst payload = JSON.stringify($input.first().json.body);\nconst signingString = `${timestamp}.${payload}`;\n\nif (!signature) {\n  throw new Error('Missing webhook signature');\n}\nconsole.log(secret);\nconst expectedSignature = crypto\n  .createHmac('sha256', secret)\n  .update(signingString)\n  .digest('hex');\n\nif (signature !== expectedSignature) {\n  throw new Error('Invalid webhook signature');\n}\n\nreturn $input.first().json;"
+      },
+      "id": "7f38c75a-0533-4fe1-b10b-4c2cbd12d71e",
+      "name": "Verify Signature",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Call Data from Webhook\n// Based on WORKFLOW_ADAPTATION_PLAN.md Section 4.3 with FIX #2 and #7 applied\n\n// FIX #2: Updated webhook payload parsing based on Vapi docs verification\n// const webhook = $input.item.json;\n// const message_new = $input.first().json.body.message \n\n\nconst message = $input.first().json.body.message;\n\n// Verify this is an end-of-call-report event\nif (message.type !== 'end-of-call-report') {\n  throw new Error(`Unexpected webhook type: ${message.type}`);\n}\n\nconst call = message.call;\nconst artifact = message.artifact || {};\nconsole.log(artifact);\nconst endedReason = message.endedReason;\n\n// Extract debtor_id from assistant overrides (stored in call object)\nconst debtorId = call.assistantOverrides?.variableValues?.debtor_id;\n\nif (!debtorId) {\n  throw new Error('Missing debtor_id in webhook');\n}\n\n// Check if call succeeded or failed\nconst callStatus = call.status; // \"ended\" or \"failed\"\n\n// Parse function call (log_outcome)\n// NOTE: Vapi may send this in artifact.messages array - needs testing\nlet outcome = 'UNKNOWN';\nlet paymentMethod = 'none';\nlet notes = '';\nlet promisedDate = null;\n\nif (callStatus === 'failed') {\n  // FIX #7: CALL_FAILED not in function enum - handle separately\n  outcome = 'CALL_FAILED';\n  notes = `Call failed: ${endedReason}`;\n} else if (artifact.messages && artifact.messages.length > 0) {\n  // Search for log_outcome function call in messages\n  // Function calls may appear as toolCalls in message objects\n  let functionCallFound = false;\n\n  for (const msg of artifact.messages) {\n    if (msg.toolCalls && Array.isArray(msg.toolCalls)) {\n      for (const toolCall of msg.toolCalls) {\n        if (toolCall.function?.name === 'log_outcome') {\n          // Parse function arguments (may be string or object)\n          const args = typeof toolCall.function.arguments === 'string'\n            ? JSON.parse(toolCall.function.arguments)\n            : toolCall.function.arguments;\n\n          outcome = args.outcome || 'UNKNOWN';\n          paymentMethod = args.payment_method || 'none';\n          notes = args.notes || '';\n          promisedDate = args.promised_date || null;\n          functionCallFound = true;\n          break;\n        }\n      }\n      if (functionCallFound) break;\n    }\n  }\n\n  if (!functionCallFound) {\n    // No function call found = likely no answer, voicemail, or system error\n    outcome = 'NO_ANSWER';\n    notes = 'No outcome logged by assistant (check transcript)';\n  }\n} else {\n  // No messages in artifact\n  outcome = 'NO_ANSWER';\n  notes = 'No conversation recorded';\n}\n\nreturn {\n  debtor_id: debtorId,\n  call_id: call.id,\n  call_status: callStatus,\n  recording_url: artifact.recording?.stereoUrl || call.recordingUrl || '',\n  transcript: artifact.transcript || '',\n  outcome: outcome,\n  payment_method: paymentMethod,\n  notes: notes,\n  promised_date: promisedDate,\n  // call_duration: call.endedAt && call.startedAt\n  //   ? (new Date(call.endedAt) - new Date(call.startedAt)) / 1000\n  //   : 0,\n  call_duration: (() => {\n  if (!message.startedAt || !message.endedAt) return 0;\n\n  const start = new Date(message.startedAt).getTime();\n  const end = new Date(message.endedAt).getTime();\n\n  if (isNaN(start) || isNaN(end)) return 0;\n\n  return (end - start) / 1000; // duration in seconds\n})(),\n\n};"
+      },
+      "id": "f50cdd84-20a8-4fb0-b06f-c8b784e49792",
+      "name": "Parse Call Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate Next Action based on Outcome\n// Based on WORKFLOW_ADAPTATION_PLAN.md Section 4.4\n\nconst data = $input.first().json;\nconst outcome = data.outcome;\nconst promisedDate = data.promised_date;\nconst now = new Date();\n\nlet nextAction = null;\nlet nextCallDate = null;\nlet assignedToAi = true;\nlet paymentStatus = 'unpaid';\nlet doNotCall = false;\n\nfunction addDays(date, days) {\n  const result = new Date(date);\n  result.setDate(result.getDate() + days);\n  return result;\n}\n\nfunction addHours(date, hours) {\n  const result = new Date(date);\n  result.setHours(result.getHours() + hours);\n  return result;\n}\n\nswitch(outcome) {\n  case 'PROMISE_TO_PAY':\n    nextAction = 'SCHEDULE_CALL';\n    if (promisedDate) {\n      // Follow up day after promised date\n      nextCallDate = addDays(new Date(promisedDate), 1);\n    } else {\n      // Default: follow up in 7 days\n      nextCallDate = addDays(now, 7);\n    }\n    break;\n\n  case 'READY_TO_PAY':\n    nextAction = 'AWAIT_PAYMENT';\n    // Payment instructions provided verbally during call\n    // Schedule follow-up in 3 days to confirm payment received\n    nextCallDate = addDays(now, 3);\n    assignedToAi = false;\n    break;\n\n  case 'NO_ANSWER':\n  case 'VOICEMAIL':\n    nextAction = 'SCHEDULE_CALL';\n    nextCallDate = addHours(now, 4); // Retry in 4 hours\n    break;\n\n  case 'WRONG_NUMBER':\n    nextAction = 'MANUAL_REVIEW';\n    assignedToAi = false;\n    break;\n\n  case 'DISPUTE_RAISED':\n  case 'HARDSHIP_CLAIMED':\n    nextAction = 'MANUAL_REVIEW';\n    assignedToAi = false;\n    break;\n\n  case 'REFUSED_TO_ENGAGE':\n    nextAction = 'SCHEDULE_CALL';\n    nextCallDate = addDays(now, 7); // Wait 1 week\n    break;\n\n  case 'REQUESTED_NO_CONTACT':\n    nextAction = 'MANUAL_REVIEW';\n    assignedToAi = false;\n    doNotCall = true;\n    break;\n\n  case 'ALREADY_PAID':\n    paymentStatus = 'paid';\n    nextAction = 'CLOSE_ACCOUNT';\n    assignedToAi = false;\n    break;\n\n  case 'CALL_FAILED':\n    nextAction = 'SCHEDULE_CALL';\n    nextCallDate = addHours(now, 2); // Retry in 2 hours\n    break;\n\n  case 'OBJECTED_TO_RECORDING':\n    nextAction = 'MANUAL_REVIEW';\n    assignedToAi = false;\n    break;\n\n  default:\n    nextAction = 'MANUAL_REVIEW';\n    assignedToAi = false;\n}\n\nreturn {\n  ...data,\n  next_action: nextAction,\n  next_call_date: nextCallDate ? nextCallDate.toISOString() : '',\n  assigned_to_ai: assignedToAi,\n  payment_status: paymentStatus,\n  do_not_call: doNotCall\n};"
+      },
+      "id": "20672381-a153-4403-b541-87d56e15471d",
+      "name": "Calculate Next Action",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        304,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48",
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1813436853,
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template.csv",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit#gid=1813436853"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "debtor_id",
+              "lookupValue": "={{$node['Parse Call Data'].json.debtor_id}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2a6f1bdd-3529-4dbd-a4e9-eb6136dcdc05",
+      "name": "Lookup Debtor Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        528,
+        176
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IujUIm76YJeSkM1S",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare Update Data\n// Based on WORKFLOW_ADAPTATION_PLAN.md Section 4.6\n\nconst parsed = $('Calculate Next Action').first().json;\nconst currentRow = $('Lookup Debtor Row').first().json;\n\nconst currentAttempt = parseInt(currentRow.attempt_number) || 1;\nconst newAttempt = currentAttempt + 1;\n\nconst timestamp = new Date().toLocaleString('en-AU', { timeZone: 'Australia/Sydney' });\nconst newNotes = `${currentRow.notes || ''}\\n[${timestamp}] Attempt ${currentAttempt}: ${parsed.outcome} - ${parsed.notes}`.trim();\n\nreturn {\n  row_number: currentRow.__rowNum__, // n8n provides this\n  call_status: 'completed',\n  call_id: parsed.call_id,\n  recording_url: parsed.recording_url,\n  last_call_date: new Date().toISOString(),\n  last_outcome: parsed.outcome,\n  next_action: parsed.next_action,\n  next_call_date: parsed.next_call_date,\n  attempt_number: newAttempt,\n  notes: newNotes,\n  assigned_to_ai: parsed.assigned_to_ai,\n  payment_status: parsed.payment_status,\n  do_not_call: parsed.do_not_call,\n  payment_method: parsed.payment_method,\n  debtor_id: parsed.debtor_id\n};"
+      },
+      "id": "cade7ab2-adec-400e-add0-5544f81d2c80",
+      "name": "Prepare Update Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        752,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48",
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1813436853,
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template.csv",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit#gid=1813436853"
+        },
+        "columnToMatchOn": "debtor_id",
+        "valueToMatchOn": "={{ $json.debtor_id }}",
+        "fieldsUi": {
+          "values": [
+            {
+              "column": "call_status",
+              "fieldValue": "={{$node['Prepare Update Data'].json.call_status}}"
+            },
+            {
+              "column": "call_id",
+              "fieldValue": "={{$node['Prepare Update Data'].json.call_id}}"
+            },
+            {
+              "column": "last_call_date",
+              "fieldValue": "={{$node['Prepare Update Data'].json.last_call_date}}"
+            },
+            {
+              "column": "last_outcome",
+              "fieldValue": "={{$node['Prepare Update Data'].json.last_outcome}}"
+            },
+            {
+              "column": "next_action",
+              "fieldValue": "={{$node['Prepare Update Data'].json.next_action}}"
+            },
+            {
+              "column": "next_call_date",
+              "fieldValue": "={{$node['Prepare Update Data'].json.next_call_date}}"
+            },
+            {
+              "column": "attempt_number",
+              "fieldValue": "={{$node['Prepare Update Data'].json.attempt_number}}"
+            },
+            {
+              "column": "notes",
+              "fieldValue": "={{$node['Prepare Update Data'].json.notes}}"
+            },
+            {
+              "column": "assigned_to_ai",
+              "fieldValue": "={{$node['Prepare Update Data'].json.assigned_to_ai}}"
+            },
+            {
+              "column": "payment_status",
+              "fieldValue": "={{$node['Prepare Update Data'].json.payment_status}}"
+            },
+            {
+              "column": "do_not_call",
+              "fieldValue": "={{$node['Prepare Update Data'].json.do_not_call}}"
+            },
+            {
+              "column": "recording_url",
+              "fieldValue": "={{$node['Prepare Update Data'].json.recording_url}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "593f841b-0725-4517-8948-2bcc7c30a653",
+      "name": "Update Debtor Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        976,
+        176
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IujUIm76YJeSkM1S",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "condition-003",
+              "leftValue": "={{ $node['Calculate Next Action'].json.next_action }}",
+              "rightValue": "MANUAL_REVIEW",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "7991a5ff-e6dc-4e9c-9377-b0504ec5f542",
+      "name": "IF - Manual Review Needed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48",
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1813436853,
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template.csv",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit#gid=1813436853"
+        },
+        "columnToMatchOn": "debtor_id",
+        "valueToMatchOn": "={{$node['Normalize Phone & Prepare Variables'].json.debtor_id}}",
+        "fieldsUi": {
+          "values": [
+            {
+              "column": "call_status"
+            },
+            {
+              "column": "notes",
+              "fieldValue": "=[{{$now}}] Vapi call failed: {{$node['Call Vapi API'].json.error}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3520c9a2-493d-4d0f-af4a-688f85d85442",
+      "name": "Google Sheets - Reset call_status",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        1424,
+        -368
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IujUIm76YJeSkM1S",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me1",
+      "typeVersion": 1,
+      "position": [
+        1648,
+        -368
+      ],
+      "id": "f565bbb8-839f-491f-89e0-790c1293f215"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtMinute": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -352,
+        592
+      ],
+      "id": "203cdb36-e543-4cf9-be37-c89e75333af5",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48",
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1813436853,
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template.csv",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit#gid=1813436853"
+        },
+        "options": {}
+      },
+      "id": "1ee1428a-8909-4404-8dce-fe0ea16aba2a",
+      "name": "Read BCS Debtors To Reset Attempts",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        -112,
+        592
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IujUIm76YJeSkM1S",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Reset Daily Attempts\n// Based on WORKFLOW_ADAPTATION_PLAN.md Section 3.7\n\nconst items = $input.all();\nconst now = new Date();\nconst today = now.toISOString().slice(0, 10); // YYYY-MM-DD format\n\nconst resetList = items\n  .filter(item => {\n    const data = item.json;\n\n    // Must be assigned to AI\n    if (data.assigned_to_ai !== 'TRUE' && data.assigned_to_ai !== true) return false;\n\n    // Must be unpaid\n    if (data.payment_status !== 'unpaid') return false;\n\n    // Must not be currently calling (duplicate prevention)\n    if (data.call_status === 'calling') return false;\n\n    // Must not be on do-not-call list\n    if (data.do_not_call === 'TRUE' || data.do_not_call === true) return false;\n\n    const attemptNumber = parseInt(data.attempt_number) || 0;\n    if (attemptNumber < 4) {\n      // Optional — uncomment to only reset those who reached 3 attempts\n      return false;\n    }\n    return true;\n  })\n  .map(item => {\n    const data = item.json;\n\n    return {\n      json: {\n        debtor_id: data.debtor_id,\n        attempt_number: 1, // reset to 1\n        last_reset_date: today,\n        reset_reason: 'Daily reset of attempt count',\n      },\n    };\n  });\n\nreturn resetList;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        96,
+        592
+      ],
+      "id": "d2e39021-df2d-4ccc-b830-479e5fa5d66a",
+      "name": "Filter Debtors"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        304,
+        592
+      ],
+      "id": "2a213fd7-c229-4581-a6e6-75b3cb6cf469",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me",
+      "typeVersion": 1,
+      "position": [
+        912,
+        608
+      ],
+      "id": "14196217-6027-4c38-a400-74893745b478"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48",
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1813436853,
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template.csv",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit#gid=1813436853"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "debtor_id": "={{ $json.debtor_id }}",
+            "attempt_number": "0"
+          },
+          "matchingColumns": [
+            "debtor_id"
+          ],
+          "schema": [
+            {
+              "id": "debtor_id",
+              "displayName": "debtor_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "debtor_type",
+              "displayName": "debtor_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "amount",
+              "displayName": "amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "creditor",
+              "displayName": "creditor",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "invoice_number",
+              "displayName": "invoice_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "debt_date",
+              "displayName": "debt_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "dob",
+              "displayName": "dob",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "abn",
+              "displayName": "abn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "timezone",
+              "displayName": "timezone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "call_status",
+              "displayName": "call_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "call_id",
+              "displayName": "call_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_call_date",
+              "displayName": "last_call_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "last_outcome",
+              "displayName": "last_outcome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "next_action",
+              "displayName": "next_action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "next_call_date",
+              "displayName": "next_call_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "attempt_number",
+              "displayName": "attempt_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "assigned_to_ai",
+              "displayName": "assigned_to_ai",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "payment_status",
+              "displayName": "payment_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "do_not_call",
+              "displayName": "do_not_call",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "recording_url",
+              "displayName": "recording_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        608,
+        608
+      ],
+      "id": "fd669d4a-3849-4b17-a275-696d4885e40a",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IujUIm76YJeSkM1S",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Every 30 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Read BCS Debtors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Trigger (for testing)": {
+      "main": [
+        [
+          {
+            "node": "Read BCS Debtors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read BCS Debtors": {
+      "main": [
+        [
+          {
+            "node": "Filter & Validate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter & Validate": {
+      "main": [
+        [
+          {
+            "node": "Split Into Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Into Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Normalize Phone & Prepare Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Phone & Prepare Variables": {
+      "main": [
+        [
+          {
+            "node": "Set call_status = calling",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set call_status = calling": {
+      "main": [
+        [
+          {
+            "node": "Call Vapi API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Vapi API": {
+      "main": [
+        [
+          {
+            "node": "IF - Call Successful?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Call Successful?": {
+      "main": [
+        [
+          {
+            "node": "Replace Me1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets - Reset call_status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Test Payload": {
+      "main": [
+        [
+          {
+            "node": "Send to Vapi Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send to Vapi Handler": {
+      "main": [
+        [
+          {
+            "node": "Display Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Vapi End-of-Call": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Verify Signature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Signature": {
+      "main": [
+        [
+          {
+            "node": "Parse Call Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Call Data": {
+      "main": [
+        [
+          {
+            "node": "Calculate Next Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Next Action": {
+      "main": [
+        [
+          {
+            "node": "Lookup Debtor Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Debtor Row": {
+      "main": [
+        [
+          {
+            "node": "Prepare Update Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Update Data": {
+      "main": [
+        [
+          {
+            "node": "Update Debtor Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Debtor Row": {
+      "main": [
+        [
+          {
+            "node": "IF - Manual Review Needed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Manual Review Needed?": {
+      "main": [
+        []
+      ]
+    },
+    "Google Sheets - Reset call_status": {
+      "main": [
+        [
+          {
+            "node": "Replace Me1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me1": {
+      "main": [
+        [
+          {
+            "node": "Split Into Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read BCS Debtors To Reset Attempts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read BCS Debtors To Reset Attempts": {
+      "main": [
+        [
+          {
+            "node": "Filter Debtors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Debtors": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "cf747b1f-2f91-4733-9d95-11f6ed26f213",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4bd98362f3d54482eb829799495da795d3b31e5fa23238434a86b1cad336b5cb"
+  },
+  "id": "Obb1r8EG75WtdQMn",
+  "tags": []
+}
