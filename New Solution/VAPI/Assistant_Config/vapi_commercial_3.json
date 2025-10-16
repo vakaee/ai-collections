@@ -7,9 +7,14 @@
     "provider": "vapi"
   },
   "createdAt": "2025-10-07T06:28:52.489Z",
-  "updatedAt": "2025-10-14T05:08:14.888Z",
+  "updatedAt": "2025-10-16T06:29:40.425Z",
   "model": {
     "model": "gpt-4o",
+    "toolIds": [
+      "78b8f321-eccf-4c4a-b9bc-95f0ac7b1bda",
+      "34f0537e-be2c-4bf6-8f6a-4edaf014ed62",
+      "bf4d8c3c-344e-4809-b83b-db94645895fb"
+    ],
     "messages": [
       {
         "role": "system",

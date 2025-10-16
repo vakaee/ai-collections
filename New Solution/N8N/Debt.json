@@ -9,7 +9,7 @@
       "typeVersion": 1,
       "position": [
         -368,
-        -464
+        -496
       ]
     },
     {
@@ -20,7 +20,7 @@
       "typeVersion": 1,
       "position": [
         -368,
-        -272
+        -304
       ]
     },
     {
@@ -46,8 +46,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 3,
       "position": [
-        -96,
-        -416
+        -144,
+        -400
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -58,15 +58,15 @@
     },
     {
       "parameters": {
-        "jsCode": "// Filter & Validate Debtors\n// Based on WORKFLOW_ADAPTATION_PLAN.md Section 3.3 with all fixes applied\n\nconst items = $input.all();\nconst now = new Date();\n\n// Business hours configuration\nconst BUSINESS_HOURS = {\n  AEST: { weekday: { start: 7.5, end: 21 }, weekend: { start: 9, end: 21 } },\n  ACST: { weekday: { start: 7.5, end: 21 }, weekend: { start: 9, end: 21 } },\n  AWST: { weekday: { start: 7.5, end: 21 }, weekend: { start: 9, end: 21 } }\n};\n\n// Timezone offsets from UTC\nconst TIMEZONE_OFFSETS = {\n  AEST: 10,\n  ACST: 9.5,\n  AWST: 8\n};\n\nfunction isBusinessHours(timezone) {\n  const offset = TIMEZONE_OFFSETS[timezone] || 10; // Default AEST\n  const localTime = new Date(now.getTime() + offset * 3600000);\n  const hour = localTime.getHours() + localTime.getMinutes() / 60;\n  const day = localTime.getDay();\n  const isWeekend = day === 0 || day === 6;\n\n  const hours = BUSINESS_HOURS[timezone] || BUSINESS_HOURS.AEST;\n  const schedule = isWeekend ? hours.weekend : hours.weekday;\n\n  return hour >= schedule.start && hour < schedule.end;\n}\n\nconst filtered = items.filter(item => {\n  const data = item.json;\n\n  // Must be assigned to AI\n  if (data.assigned_to_ai !== 'TRUE' && data.assigned_to_ai !== true) return false;\n\n  // Must be unpaid\n  if (data.payment_status !== 'unpaid') return false;\n\n  // Must not be currently calling (duplicate prevention)\n  if (data.call_status === 'calling') return false;\n\n  // Must not be on do-not-call list\n  if (data.do_not_call === 'TRUE' || data.do_not_call === true) return false;\n\n  // Must have valid attempt number (1-3)\n  const attemptNumber = parseInt(data.attempt_number) || 1;\n  if (attemptNumber > 3) return false;\n\n  // Must be scheduled for now or past\n  if (data.next_call_date) {\n    const nextCallDate = new Date(data.next_call_date);\n    if (nextCallDate > now) return false;\n  }\n\n  // Must be within business hours for debtor's timezone\n  const timezone = data.timezone || 'AEST';\n  // console.log(\"business hour test\" + isBusinessHours(timezone));\n if(!isBusinessHours(timezone)) \n   return false;\n  \n\n  return true;\n});\n\nreturn filtered;"
+        "jsCode": "// Filter & Validate Debtors\n// Based on WORKFLOW_ADAPTATION_PLAN.md Section 3.3 with all fixes applied\n\nconst items = $input.all();\nconst now = new Date();\n\n// Business hours configuration\nconst BUSINESS_HOURS = {\n  AEST: { weekday: { start: 7.5, end: 21 }, weekend: { start: 9, end: 21 } },\n  ACST: { weekday: { start: 7.5, end: 21 }, weekend: { start: 9, end: 21 } },\n  AWST: { weekday: { start: 7.5, end: 21 }, weekend: { start: 9, end: 21 } }\n};\n\n// Timezone offsets from UTC\nconst TIMEZONE_OFFSETS = {\n  AEST: 10,\n  ACST: 9.5,\n  AWST: 8\n};\n\nfunction isBusinessHours(timezone) {\n  const offset = TIMEZONE_OFFSETS[timezone] || 10; // Default AEST\n  const localTime = new Date(now.getTime() + offset * 3600000);\n  const hour = localTime.getHours() + localTime.getMinutes() / 60;\n  const day = localTime.getDay();\n  const isWeekend = day === 0 || day === 6;\n\n  const hours = BUSINESS_HOURS[timezone] || BUSINESS_HOURS.AEST;\n  const schedule = isWeekend ? hours.weekend : hours.weekday;\n\n  return hour >= schedule.start && hour < schedule.end;\n}\n\nconst filtered = items.filter(item => {\n  const data = item.json;\n\n  // Must be assigned to AI\n  if (data.assigned_to_ai !== 'TRUE' && data.assigned_to_ai !== true) return false;\n\n  // Must be unpaid\n  if (data.payment_status !== 'unpaid') return false;\n\n  // Must not be currently calling (duplicate prevention)\n  if (data.call_status === 'calling') return false;\n\n  // Must not be on do-not-call list\n  if (data.do_not_call === 'TRUE' || data.do_not_call === true) return false;\n\n  // Must have valid attempt number (1-3)\n  const attemptNumber = parseInt(data.attempt_number) || 1;\n  if (attemptNumber > 3) return false;\n   \n  // Must be scheduled for now or past\n  if (data.next_call_date) {\n    const nextCallDate = new Date(data.next_call_date);\n    if (nextCallDate > now) return false;\n  }\n\n  // Must be within business hours for debtor's timezone\n  const timezone = data.timezone || 'AEST';\n  // console.log(\"business hour test\" + isBusinessHours(timezone));\n if(!isBusinessHours(timezone)) \n   return false;\n\n  // total attempts must me less then 9 and this  total attempt number is total completed attempts.\n  if(parseInt(data.total_attempts) > 8)\n    return false\n  \n  return true;\n});\n\nreturn filtered;"
       },
       "id": "e1e8a013-c8c0-4d71-b3ca-1e9a26aff28b",
       "name": "Filter & Validate",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        96,
-        -416
+        80,
+        -400
       ]
     },
     {
@@ -78,23 +78,23 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        320,
-        -544
+        304,
+        -400
       ],
       "alwaysOutputData": false,
       "oncePerBatch": false
     },
     {
       "parameters": {
-        "jsCode": "// Normalize Phone & Prepare Vapi Variables\n// Based on WORKFLOW_ADAPTATION_PLAN.md Section 3.5 with FIX #1 and #3 applied\n\nconst data = $input.first().json;\n\n// Phone normalization function (robust E.164 conversion)\nfunction normalizePhone(phone) {\n  if (!phone) return null;\n\n  // Remove spaces, dashes, parentheses\n  let cleaned = phone.toString().replace(/[\\s\\-\\(\\)]/g, '');\n\n  // Convert Australian 04xx to +614xx\n  if (cleaned.startsWith('04')) {\n    cleaned = '+61' + cleaned.substring(1);\n  }\n\n  // Convert Australian 61 to +61\n  if (cleaned.startsWith('61') && !cleaned.startsWith('+')) {\n    cleaned = '+61' + cleaned;\n  }\n\n  // Add + if missing (assume Australian)\n  if (!cleaned.startsWith('+')) {\n    cleaned = '+61' + cleaned;\n  }\n\n  return cleaned;\n}\n\n// Assistant selection (6 assistants based on debtor type and attempt number)\nconst debtorType = (data.debtor_type || 'consumer').toLowerCase();\nconst attemptNumber = parseInt(data.attempt_number) || 1;\n\nconst assistantMap = {\n  'consumer_1': $vars.VAPI_CONSUMER_1,\n  'consumer_2': $vars.VAPI_CONSUMER_2,\n  'consumer_3': $vars.VAPI_CONSUMER_3,\n  'commercial_1': $vars.VAPI_COMMERCIAL_1,\n  'commercial_2': $vars.VAPI_COMMERCIAL_2,\n  'commercial_3': $vars.VAPI_COMMERCIAL_3\n};\nconst assistantKey = `${debtorType}_${attemptNumber}`;\nconst assistantId = assistantMap[assistantKey];\n\nif (!assistantId) {\n  throw new Error(`No assistant found for ${assistantKey}`);\n}\n\n// Prepare Vapi call payload\nreturn {\n  debtor_id: data.debtor_id,\n  row_number: data.__rowNum__, // FIX #1: Use n8n's built-in row number (survives filtering)\n  phone_normalized: normalizePhone(data.phone),\n  phone_original: data.phone,\n  assistant_id: assistantId,\n  vapi_payload: {\n    assistantId: assistantId,\n    customer: {\n      number: normalizePhone(data.phone)\n    },\n    phoneNumberId: $vars.VAPI_PHONE_NUMBER_ID, // FIX #3: Use ID not phone number\n    assistantOverrides: {\n      variableValues: {\n        debtor_id: data.debtor_id.toString(),\n        debtor_name: data.name,\n        amount: data.amount.toString(),\n        creditor: data.creditor,\n        invoice_number: data.invoice_number,\n        dob: data.dob || '',\n        abn: data.abn || '',\n        attempt_number: attemptNumber.toString(),\n        collection_agency: $vars.ACCOUNT_NAME,\n        bcs_phone_number: $vars.BCS_PHONE_NUMBER,\n        stripe_payment_link: $vars.STRIPE_PAYMENT_LINK,\n        bcs_mailing_address: $vars.BCS_MAILING_ADDRESS,\n        agent_name: \t$vars.AGENT_NAME,\n        Bank_name: $vars.BANK_NAME,\n        BSB: $vars.BSB_NUMBER,\n        Account_Number: $vars.ACCOUNT_NUMBER\n      }\n    }\n  }\n};"
+        "jsCode": "// Normalize Phone & Prepare Vapi Variables\n  // FIXED: Proper international phone normalization\n\n  const data = $input.first().json;\n\n  // Phone normalization function - handles Australian, North American, and international\n  function normalizePhone(phone) {\n    if (!phone) return null;\n\n    // Remove spaces, dashes, parentheses, dots\n    let cleaned = phone.toString().replace(/[\\s\\-\\(\\)\\.\\+]/g, '');\n\n    // Remove leading zeros/ones that might be trunk prefixes\n    // But preserve if it's part of the actual number\n\n    // Case 1: Already has country code (11+ digits, no leading 0)\n    if (cleaned.length >= 11 && !cleaned.startsWith('0')) {\n      // Starts with 61 = Australia\n      if (cleaned.startsWith('61')) {\n        return '+' + cleaned;\n      }\n      // Starts with 1 = North America\n      if (cleaned.startsWith('1') && cleaned.length === 11) {\n        return '+' + cleaned;\n      }\n      // Starts with 44 = UK\n      if (cleaned.startsWith('44')) {\n        return '+' + cleaned;\n      }\n      // Other international\n      if (cleaned.length >= 11 && cleaned.length <= 15) {\n        return '+' + cleaned;\n      }\n    }\n\n    // Case 2: Australian local format (starts with 0, exactly 10 digits)\n    if (cleaned.startsWith('0') && cleaned.length === 10) {\n      return '+61' + cleaned.substring(1);\n    }\n\n    // Case 3: North American (exactly 10 digits, does NOT start with 0)\n    if (cleaned.length === 10 && !cleaned.startsWith('0')) {\n      return '+1' + cleaned;\n    }\n\n    // Case 4: Could be international without country code (7-9 digits)\n    // This is ambiguous - throw error for manual review\n    if (cleaned.length >= 7 && cleaned.length <= 9) {\n      throw new Error(`Ambiguous phone number: ${phone}. Please include country code.`);\n    }\n\n    // Invalid\n    throw new Error(`Invalid phone number: ${phone}. Got ${cleaned.length} digits: ${cleaned}`);\n  }\n\n  // Assistant selection (6 assistants based on debtor type and attempt number)\n  const debtorType = (data.debtor_type || 'consumer').toLowerCase();\n  const attemptNumber = parseInt(data.attempt_number) || 1;\n\n  const assistantMap = {\n    'consumer_1': $vars.VAPI_CONSUMER_1,\n    'consumer_2': $vars.VAPI_CONSUMER_2,\n    'consumer_3': $vars.VAPI_CONSUMER_3,\n    'commercial_1': $vars.VAPI_COMMERCIAL_1,\n    'commercial_2': $vars.VAPI_COMMERCIAL_2,\n    'commercial_3': $vars.VAPI_COMMERCIAL_3\n  };\n\n  const assistantKey = `${debtorType}_${attemptNumber}`;\n  const assistantId = assistantMap[assistantKey];\n\n  if (!assistantId) {\n    throw new Error(`No assistant found for ${assistantKey}`);\n  }\n\n  // Prepare Vapi call payload\n  return {\n    debtor_id: data.debtor_id,\n    row_number: data.__rowNum__,\n    phone_normalized: normalizePhone(data.phone),\n    phone_original: data.phone,\n    assistant_id: assistantId,\n    vapi_payload: {\n      assistantId: assistantId,\n      customer: {\n        number: normalizePhone(data.phone)\n      },\n      phoneNumberId: $vars.VAPI_PHONE_NUMBER_ID,\n      assistantOverrides: {\n        variableValues: {\n          debtor_id: data.debtor_id.toString(),\n          debtor_name: data.name,\n          amount: data.amount.toString(),\n          creditor: data.creditor,\n          invoice_number: data.invoice_number,\n          dob: data.dob || '',\n          abn: data.abn || '',\n          attempt_number: attemptNumber.toString(),\n          collection_agency: $vars.ACCOUNT_NAME,\n          bcs_phone_number: $vars.BCS_PHONE_NUMBER,\n          stripe_payment_link: $vars.STRIPE_PAYMENT_LINK,\n          bcs_mailing_address: $vars.BCS_MAILING_ADDRESS,\n          agent_name: $vars.AGENT_NAME,\n          Bank_name: $vars.BANK_NAME,\n          BSB: $vars.BSB_NUMBER,\n          Account_Number: $vars.ACCOUNT_NUMBER\n        }\n      }\n    }\n  };"
       },
       "id": "095b64c5-276b-40e5-80f2-620ff2aff864",
       "name": "Normalize Phone & Prepare Variables",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        560,
-        -528
+        528,
+        -472
       ]
     },
     {
@@ -131,8 +131,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 3,
       "position": [
-        768,
-        -480
+        752,
+        -472
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -170,7 +170,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        960,
+        976,
         -464
       ],
       "onError": "continueRegularOutput"
@@ -206,7 +206,7 @@
       "typeVersion": 2,
       "position": [
         1200,
-        -448
+        -464
       ]
     },
     {
@@ -219,7 +219,7 @@
       "typeVersion": 2,
       "position": [
         -368,
-        -48
+        -80
       ]
     },
     {
@@ -252,7 +252,7 @@
       "typeVersion": 4.2,
       "position": [
         -144,
-        -48
+        -80
       ]
     },
     {
@@ -265,7 +265,7 @@
       "typeVersion": 2,
       "position": [
         80,
-        -48
+        -80
       ]
     },
     {
@@ -281,7 +281,7 @@
       "typeVersion": 2,
       "position": [
         -368,
-        272
+        240
       ],
       "webhookId": "vapi-handler"
     },
@@ -296,7 +296,7 @@
       "typeVersion": 1,
       "position": [
         -144,
-        368
+        336
       ]
     },
     {
@@ -309,7 +309,7 @@
       "typeVersion": 2,
       "position": [
         -144,
-        176
+        144
       ]
     },
     {
@@ -322,12 +322,12 @@
       "typeVersion": 2,
       "position": [
         80,
-        176
+        144
       ]
     },
     {
       "parameters": {
-        "jsCode": "// Calculate Next Action based on Outcome\n// Based on WORKFLOW_ADAPTATION_PLAN.md Section 4.4\n\nconst data = $input.first().json;\nconst outcome = data.outcome;\nconst promisedDate = data.promised_date;\nconst now = new Date();\n\nlet nextAction = null;\nlet nextCallDate = null;\nlet assignedToAi = true;\nlet paymentStatus = 'unpaid';\nlet doNotCall = false;\n\nfunction addDays(date, days) {\n  const result = new Date(date);\n  result.setDate(result.getDate() + days);\n  return result;\n}\n\nfunction addHours(date, hours) {\n  const result = new Date(date);\n  result.setHours(result.getHours() + hours);\n  return result;\n}\n\nswitch(outcome) {\n  case 'PROMISE_TO_PAY':\n    nextAction = 'SCHEDULE_CALL';\n    if (promisedDate) {\n      // Follow up day after promised date\n      nextCallDate = addDays(new Date(promisedDate), 1);\n    } else {\n      // Default: follow up in 7 days\n      nextCallDate = addDays(now, 7);\n    }\n    break;\n\n  case 'READY_TO_PAY':\n    nextAction = 'AWAIT_PAYMENT';\n    // Payment instructions provided verbally during call\n    // Schedule follow-up in 3 days to confirm payment received\n    nextCallDate = addDays(now, 3);\n    assignedToAi = false;\n    break;\n\n  case 'NO_ANSWER':\n  case 'VOICEMAIL':\n    nextAction = 'SCHEDULE_CALL';\n    nextCallDate = addHours(now, 4); // Retry in 4 hours\n    break;\n\n  case 'WRONG_NUMBER':\n    nextAction = 'MANUAL_REVIEW';\n    assignedToAi = false;\n    break;\n\n  case 'DISPUTE_RAISED':\n  case 'HARDSHIP_CLAIMED':\n    nextAction = 'MANUAL_REVIEW';\n    assignedToAi = false;\n    break;\n\n  case 'REFUSED_TO_ENGAGE':\n    nextAction = 'SCHEDULE_CALL';\n    nextCallDate = addDays(now, 7); // Wait 1 week\n    break;\n\n  case 'REQUESTED_NO_CONTACT':\n    nextAction = 'MANUAL_REVIEW';\n    assignedToAi = false;\n    doNotCall = true;\n    break;\n\n  case 'ALREADY_PAID':\n    paymentStatus = 'paid';\n    nextAction = 'CLOSE_ACCOUNT';\n    assignedToAi = false;\n    break;\n\n  case 'CALL_FAILED':\n    nextAction = 'SCHEDULE_CALL';\n    nextCallDate = addHours(now, 2); // Retry in 2 hours\n    break;\n\n  case 'OBJECTED_TO_RECORDING':\n    nextAction = 'MANUAL_REVIEW';\n    assignedToAi = false;\n    break;\n\n  default:\n    nextAction = 'MANUAL_REVIEW';\n    assignedToAi = false;\n}\n\nreturn {\n  ...data,\n  next_action: nextAction,\n  next_call_date: nextCallDate ? nextCallDate.toISOString() : '',\n  assigned_to_ai: assignedToAi,\n  payment_status: paymentStatus,\n  do_not_call: doNotCall\n};"
+        "jsCode": "// Calculate Next Action based on Outcome\n// Based on WORKFLOW_ADAPTATION_PLAN.md Section 4.4\n\nconst data = $input.first().json;\nconst outcome = data.outcome;\nconst promisedDate = data.promised_date;\nconst callBackDate = data.callback_date;\nconst now = new Date();\n\nlet nextAction = null;\nlet nextCallDate = null;\nlet assignedToAi = true;\nlet paymentStatus = 'unpaid';\nlet doNotCall = false;\n\nfunction addDays(date, days) {\n  const result = new Date(date);\n  result.setDate(result.getDate() + days);\n  return result;\n}\n\nfunction addHours(date, hours) {\n  const result = new Date(date);\n  result.setHours(result.getHours() + hours);\n  return result;\n}\n\nswitch(outcome) {\n  case 'PROMISE_TO_PAY':\n    nextAction = 'SCHEDULE_CALL';\n    if (promisedDate) {\n      // Follow up day after promised date\n      nextCallDate = addDays(new Date(promisedDate), 1);\n    } else {\n      // Default: follow up in 7 days\n      nextCallDate = addDays(now, 7);\n    }\n    break;\n\n  case 'READY_TO_PAY':\n    nextAction = 'AWAIT_PAYMENT';\n    // Payment instructions provided verbally during call\n    // Schedule follow-up in 3 days to confirm payment received\n    nextCallDate = addDays(now, 3);\n    assignedToAi = false;\n    break;\n\n  case 'NO_ANSWER':\n      nextAction = 'SCHEDULE_CALL';\n      nextCallDate = addHours(now, 2); // Retry in 2 hours\n      break;\n\n  case 'VOICEMAIL':\n    nextAction = 'SCHEDULE_CALL';\n    nextCallDate = addHours(now, 2); // Retry in 4 hours\n    break;\n\n  case 'WRONG_NUMBER':\n    nextAction = 'MANUAL_REVIEW';\n    assignedToAi = false;\n    break;\n\n  case 'DISPUTE_RAISED':\n      nextAction = 'MANUAL_REVIEW';\n      assignedToAi = false;\n      break;\n\n  case 'HARDSHIP_CLAIMED':\n    nextAction = 'MANUAL_REVIEW';\n    assignedToAi = false;\n    break;\n\n  case 'REFUSED_TO_ENGAGE':\n    nextAction = 'SCHEDULE_CALL';\n    nextCallDate = addDays(now, 7); // Wait 1 week\n    break;\n\n  case 'REQUESTED_NO_CONTACT':\n    nextAction = 'MANUAL_REVIEW';\n    assignedToAi = false;\n    doNotCall = true;\n    break;\n\n  case 'ALREADY_PAID':\n    paymentStatus = 'paid';\n    nextAction = 'CLOSE_ACCOUNT';\n    assignedToAi = false;\n    break;\n\n  case 'CALL_FAILED':\n    nextAction = 'SCHEDULE_CALL';\n    nextCallDate = addHours(now, 2); // Retry in 2 hours\n    break;\n\n  case 'OBJECTED_TO_RECORDING':\n    nextAction = 'MANUAL_REVIEW';\n    assignedToAi = false;\n    break;\n\n  case 'PAYMENT_PLAN_REQUESTED':\n    nextAction = 'MANUAL_REVIEW'; // human approval required\n    assignedToAi = false;\n    break;\n\n  case 'PAYMENT_RECEIVED':\n    nextAction = 'CLOSE_ACCOUNT'; // payment confirmed, close account\n    paymentStatus = 'paid';\n    assignedToAi = false;\n    break;\n\n  case 'DECEASED':\n    nextAction = 'CLOSE_ACCOUNT'; // cease contact immediately\n    assignedToAi = false;\n    doNotCall = true;\n    break;\n\n  case 'CALLBACK_REQUESTED':\n    nextAction = 'SCHEDULE_CALL'; // follow up at requested time\n    if (callBackDate) {\n      // Follow up day after promised date\n      nextCallDate = new Date(callBackDate);\n    } else {\n      // Default: follow up in 2 hours\n      nextCallDate = addHours(now, 2);\n    }    \n    break;\n\n  case 'HUNG_UP':\n    nextAction = 'SCHEDULE_CALL'; // retry next business day\n    nextCallDate = addDays(now, 1);\n    break;\n\n  case 'ESCALATE_TO_HUMAN':\n    nextAction = 'MANUAL_REVIEW'; // complex issue, needs human\n    assignedToAi = false;\n    break;\n\n  case 'CEASE_CONTACT_REQUESTED':\n    nextAction = 'MANUAL_REVIEW'; // cease calls, written contact only\n    assignedToAi = false;\n    doNotCall = true;\n    break;\n\n  case 'LEGAL_REPRESENTATION':\n    nextAction = 'MANUAL_REVIEW'; // contact lawyer, stop debtor contact\n    assignedToAi = false;\n    doNotCall = true;\n    break;\n\n  case 'COMPLAINT_THREATENED':\n    nextAction = 'MANUAL_REVIEW'; // escalate to supervisor\n    assignedToAi = false;\n    break;\n\n  case 'AMOUNT_DISPUTED':\n    nextAction = 'MANUAL_REVIEW'; // handle as dispute, pause collection\n    assignedToAi = false;\n    break;\n\n  case 'ABUSIVE_DEBTOR':\n    nextAction = 'MANUAL_REVIEW'; // flag for review, may cease contact\n    assignedToAi = false;\n    break;\n\n  case 'BANKRUPTCY_DECLARED':\n    nextAction = 'CLOSE_ACCOUNT'; // cease collection, contact trustee\n    assignedToAi = false;\n    doNotCall = true;\n    break;\n    \n  default:\n    nextAction = 'MANUAL_REVIEW';\n    assignedToAi = false;\n}\n\nreturn {\n  ...data,\n  next_action: nextAction,\n  next_call_date: nextCallDate ? nextCallDate.toISOString() : '',\n  assigned_to_ai: assignedToAi,\n  payment_status: paymentStatus,\n  do_not_call: doNotCall\n};"
       },
       "id": "20672381-a153-4403-b541-87d56e15471d",
       "name": "Calculate Next Action",
@@ -335,7 +335,7 @@
       "typeVersion": 2,
       "position": [
         304,
-        176
+        144
       ]
     },
     {
@@ -370,7 +370,7 @@
       "typeVersion": 3,
       "position": [
         528,
-        176
+        144
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -381,7 +381,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Prepare Update Data\n// Based on WORKFLOW_ADAPTATION_PLAN.md Section 4.6\n\nconst parsed = $('Calculate Next Action').first().json;\nconst currentRow = $('Lookup Debtor Row').first().json;\n\nconst currentAttempt = parseInt(currentRow.attempt_number) || 1;\nconst newAttempt = currentAttempt + 1;\n\nconst timestamp = new Date().toLocaleString('en-AU', { timeZone: 'Australia/Sydney' });\nconst newNotes = `${currentRow.notes || ''}\\n[${timestamp}] Attempt ${currentAttempt}: ${parsed.outcome} - ${parsed.notes}`.trim();\n\nreturn {\n  row_number: currentRow.__rowNum__, // n8n provides this\n  call_status: 'completed',\n  call_id: parsed.call_id,\n  recording_url: parsed.recording_url,\n  last_call_date: new Date().toISOString(),\n  last_outcome: parsed.outcome,\n  next_action: parsed.next_action,\n  next_call_date: parsed.next_call_date,\n  attempt_number: newAttempt,\n  notes: newNotes,\n  assigned_to_ai: parsed.assigned_to_ai,\n  payment_status: parsed.payment_status,\n  do_not_call: parsed.do_not_call,\n  payment_method: parsed.payment_method,\n  debtor_id: parsed.debtor_id\n};"
+        "jsCode": "// Prepare Update Data\n// Based on WORKFLOW_ADAPTATION_PLAN.md Section 4.6\n\nconst parsed = $('Calculate Next Action').first().json;\nconst currentRow = $('Lookup Debtor Row').first().json;\n\nconst currentAttempt = parseInt(currentRow.attempt_number) || 1;\nconst newAttempt = currentAttempt + 1;\nconst total_attempts = parseInt(currentRow.total_attempts) || 0;\nconst newTotalAttempts = total_attempts + 1;\n\nconst timestamp = new Date().toLocaleString('en-AU', { timeZone: 'Australia/Sydney' });\nconst newNotes = `${currentRow.notes || ''}\\n[${timestamp}] Attempt ${currentAttempt}: ${parsed.outcome} - ${parsed.notes}`.trim();\n\nreturn {\n  row_number: currentRow.__rowNum__, // n8n provides this\n  call_status: 'completed',\n  call_id: parsed.call_id,\n  recording_url: parsed.recording_url,\n  last_call_date: new Date().toISOString(),\n  last_outcome: parsed.outcome,\n  next_action: parsed.next_action,\n  next_call_date: parsed.next_call_date,\n  attempt_number: newAttempt,\n  notes: newNotes,\n  assigned_to_ai: parsed.assigned_to_ai,\n  payment_status: parsed.payment_status,\n  do_not_call: parsed.do_not_call,\n  payment_method: parsed.payment_method,\n  debtor_id: parsed.debtor_id,\n  total_attempts: newTotalAttempts\n};"
       },
       "id": "cade7ab2-adec-400e-add0-5544f81d2c80",
       "name": "Prepare Update Data",
@@ -389,7 +389,7 @@
       "typeVersion": 2,
       "position": [
         752,
-        176
+        144
       ]
     },
     {
@@ -460,6 +460,10 @@
             {
               "column": "recording_url",
               "fieldValue": "={{$node['Prepare Update Data'].json.recording_url}}"
+            },
+            {
+              "column": "total_attempts",
+              "fieldValue": "={{$node['Prepare Update Data'].json.total_attempts}}"
             }
           ]
         },
@@ -471,7 +475,7 @@
       "typeVersion": 3,
       "position": [
         976,
-        176
+        144
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -510,7 +514,7 @@
       "typeVersion": 2,
       "position": [
         1200,
-        176
+        144
       ]
     },
     {
@@ -550,8 +554,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 3,
       "position": [
-        1424,
-        -368
+        1408,
+        -384
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -567,7 +571,7 @@
       "typeVersion": 1,
       "position": [
         1648,
-        -368
+        -400
       ],
       "id": "f565bbb8-839f-491f-89e0-790c1293f215"
     },
@@ -584,8 +588,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -352,
-        592
+        -368,
+        632
       ],
       "id": "203cdb36-e543-4cf9-be37-c89e75333af5",
       "name": "Schedule Trigger"
@@ -613,8 +617,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 3,
       "position": [
-        -112,
-        592
+        -144,
+        632
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -630,8 +634,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        96,
-        592
+        80,
+        632
       ],
       "id": "d2e39021-df2d-4ccc-b830-479e5fa5d66a",
       "name": "Filter Debtors"
@@ -644,7 +648,7 @@
       "typeVersion": 3,
       "position": [
         304,
-        592
+        632
       ],
       "id": "2a213fd7-c229-4581-a6e6-75b3cb6cf469",
       "name": "Loop Over Items"
@@ -655,8 +659,8 @@
       "name": "Replace Me",
       "typeVersion": 1,
       "position": [
-        912,
-        608
+        752,
+        632
       ],
       "id": "14196217-6027-4c38-a400-74893745b478"
     },
@@ -946,8 +950,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        608,
-        608
+        528,
+        560
       ],
       "id": "fd669d4a-3849-4b17-a275-696d4885e40a",
       "name": "Update row in sheet",
@@ -1271,7 +1275,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "cf747b1f-2f91-4733-9d95-11f6ed26f213",
+  "versionId": "6f360ea2-bf1a-42d0-ac02-38529b0f7cee",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "4bd98362f3d54482eb829799495da795d3b31e5fa23238434a86b1cad336b5cb"
