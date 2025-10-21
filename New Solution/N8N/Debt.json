@@ -94,7 +94,7 @@
       "typeVersion": 2,
       "position": [
         528,
-        -472
+        -480
       ]
     },
     {
@@ -132,7 +132,7 @@
       "typeVersion": 3,
       "position": [
         752,
-        -472
+        -480
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -171,7 +171,7 @@
       "typeVersion": 4.2,
       "position": [
         976,
-        -464
+        -480
       ],
       "onError": "continueRegularOutput"
     },
@@ -206,7 +206,7 @@
       "typeVersion": 2,
       "position": [
         1200,
-        -464
+        -480
       ]
     },
     {
@@ -554,8 +554,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 3,
       "position": [
-        1408,
-        -384
+        1424,
+        -400
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -589,7 +589,7 @@
       "typeVersion": 1.2,
       "position": [
         -368,
-        632
+        640
       ],
       "id": "203cdb36-e543-4cf9-be37-c89e75333af5",
       "name": "Schedule Trigger"
@@ -618,7 +618,7 @@
       "typeVersion": 3,
       "position": [
         -144,
-        632
+        640
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -635,7 +635,7 @@
       "typeVersion": 2,
       "position": [
         80,
-        632
+        640
       ],
       "id": "d2e39021-df2d-4ccc-b830-479e5fa5d66a",
       "name": "Filter Debtors"
@@ -648,7 +648,7 @@
       "typeVersion": 3,
       "position": [
         304,
-        632
+        640
       ],
       "id": "2a213fd7-c229-4581-a6e6-75b3cb6cf469",
       "name": "Loop Over Items"
@@ -660,7 +660,7 @@
       "typeVersion": 1,
       "position": [
         752,
-        632
+        640
       ],
       "id": "14196217-6027-4c38-a400-74893745b478"
     },
@@ -1275,7 +1275,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "6f360ea2-bf1a-42d0-ac02-38529b0f7cee",
+  "versionId": "43125e0b-bec6-405c-a4d3-dfacf1166fbe",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "4bd98362f3d54482eb829799495da795d3b31e5fa23238434a86b1cad336b5cb"

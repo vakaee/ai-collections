@@ -1,0 +1,160 @@
+{
+	"info": {
+		"_postman_id": "vapi-bcs-tools",
+		"name": "Vapi - BCS Tools",
+		"description": "Creates the 3 tools required for BCS Debt Collection Bot.\n\n**USAGE:**\n1. Import this collection into Postman\n2. Run the 3 requests in order\n3. Copy the tool IDs from the console output (or response bodies)\n4. Save these IDs - you'll need them for the BCS Assistants collection:\n   - log_outcome_tool_id\n   - verify_identity_tool_id\n   - end_call_tool_id\n\n**IMPORTANT:** After running all 3 requests, note down the tool IDs before proceeding to the BCS Assistants collection.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "7dc13a80-ba46-4761-9b32-104ffbbf0a63",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "1. Create log_outcome Tool",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.id) {",
+							"    pm.collectionVariables.set(\"log_outcome_tool_id\", jsonData.id);",
+							"    console.log(\"log_outcome_tool_id: \" + jsonData.id);",
+							"    console.log(\"\");",
+							"    console.log(\"COPY THIS ID - You'll need it for the Assistants collection!\");",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"type\": \"function\",\n  \"async\": false,\n  \"function\": {\n    \"name\": \"log_outcome\",\n    \"description\": \"Log the call outcome when conversation ends. MUST be called before ending call.\",\n    \"parameters\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"outcome\": {\n          \"type\": \"string\",\n          \"enum\": [\n            \"PROMISE_TO_PAY\",\n            \"READY_TO_PAY\",\n            \"NO_ANSWER\",\n            \"VOICEMAIL\",\n            \"WRONG_NUMBER\",\n            \"REFUSED_TO_ENGAGE\",\n            \"REQUESTED_NO_CONTACT\",\n            \"ALREADY_PAID\",\n            \"DISPUTE_RAISED\",\n            \"HARDSHIP_CLAIMED\",\n            \"OBJECTED_TO_RECORDING\",\n            \"PAYMENT_PLAN_REQUESTED\",\n            \"PAYMENT_RECEIVED\",\n            \"DECEASED\",\n            \"CALLBACK_REQUESTED\",\n            \"HUNG_UP\",\n            \"ESCALATE_TO_HUMAN\",\n            \"CEASE_CONTACT_REQUESTED\",\n            \"LEGAL_REPRESENTATION\",\n            \"COMPLAINT_THREATENED\",\n            \"AMOUNT_DISPUTED\",\n            \"ABUSIVE_DEBTOR\",\n            \"BANKRUPTCY_DECLARED\",\n            \"IDENTITY_VERIFICATION_FAILED\"\n          ],\n          \"description\": \"The outcome of the call\"\n        },\n        \"payment_method\": {\n          \"type\": \"string\",\n          \"enum\": [\"credit_card\", \"bank_transfer\", \"cheque\", \"none\"],\n          \"description\": \"Preferred payment method if debtor is ready to pay\"\n        },\n        \"notes\": {\n          \"type\": \"string\",\n          \"description\": \"Free-form summary of the conversation\"\n        },\n        \"promised_date\": {\n          \"type\": \"string\",\n          \"format\": \"date\",\n          \"description\": \"ISO date string if debtor promised to pay by specific date\"\n        },\n        \"callback_date\": {\n          \"type\": \"string\",\n          \"format\": \"date-time\",\n          \"description\": \"ISO datetime if debtor requested callback\"\n        }\n      },\n      \"required\": [\"outcome\", \"notes\"]\n    }\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.vapi.ai/tool",
+					"protocol": "https",
+					"host": ["api", "vapi", "ai"],
+					"path": ["tool"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2. Create verify_identity Tool",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.id) {",
+							"    pm.collectionVariables.set(\"verify_identity_tool_id\", jsonData.id);",
+							"    console.log(\"verify_identity_tool_id: \" + jsonData.id);",
+							"    console.log(\"\");",
+							"    console.log(\"COPY THIS ID - You'll need it for the Assistants collection!\");",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"type\": \"function\",\n  \"async\": false,\n  \"function\": {\n    \"name\": \"verify_identity\",\n    \"description\": \"Verify debtor identity before discussing debt details\",\n    \"parameters\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"verification_method\": {\n          \"type\": \"string\",\n          \"enum\": [\"dob\", \"abn\", \"address\"],\n          \"description\": \"Method used for verification\"\n        },\n        \"verified\": {\n          \"type\": \"boolean\",\n          \"description\": \"Whether identity was successfully verified\"\n        },\n        \"notes\": {\n          \"type\": \"string\",\n          \"description\": \"Additional notes about verification\"\n        }\n      },\n      \"required\": [\"verification_method\", \"verified\"]\n    }\n  }\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.vapi.ai/tool",
+					"protocol": "https",
+					"host": ["api", "vapi", "ai"],
+					"path": ["tool"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3. Create end_call Tool",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"if (jsonData.id) {",
+							"    pm.collectionVariables.set(\"end_call_tool_id\", jsonData.id);",
+							"    console.log(\"end_call_tool_id: \" + jsonData.id);",
+							"    console.log(\"\");",
+							"    console.log(\"=== ALL TOOLS CREATED ===\");",
+							"    console.log(\"COPY THIS ID - You'll need it for the Assistants collection!\");",
+							"    console.log(\"\");",
+							"    console.log(\"Next: Import and run the BCS_Assistants collection\");",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"type\": \"endCall\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.vapi.ai/tool",
+					"protocol": "https",
+					"host": ["api", "vapi", "ai"],
+					"path": ["tool"]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "log_outcome_tool_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "verify_identity_tool_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "end_call_tool_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
