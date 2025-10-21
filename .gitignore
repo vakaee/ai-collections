@@ -1,0 +1,21 @@
+# Environment files
+.env
+
+# Mac system files
+.DS_Store
+
+# Temporary files
+temp/
+*.tmp
+*.log
+
+# n8n data directories
+.n8n/
+.n8n-vapi/
+
+# IDE
+.vscode/
+.idea/
+
+# Docker
+docker-compose.override.yml

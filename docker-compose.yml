@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n-vapi
+    restart: unless-stopped
+    ports:
+      - "5679:5678"
+    environment:
+      # Timezone
+      - TZ=Australia/Sydney
+
+      # n8n Configuration
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+      - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:5679/}
+
+      # VAPI Configuration
+      - VAPI_API_KEY=${VAPI_API_KEY}
+      - VAPI_WEBHOOK_SECRET=${VAPI_WEBHOOK_SECRET}
+      - VAPI_PHONE_NUMBER_ID=${VAPI_PHONE_NUMBER_ID}
+
+      # VAPI Assistant IDs
+      - VAPI_CONSUMER_1=${VAPI_CONSUMER_1}
+      - VAPI_CONSUMER_2=${VAPI_CONSUMER_2}
+      - VAPI_CONSUMER_3=${VAPI_CONSUMER_3}
+      - VAPI_COMMERCIAL_1=${VAPI_COMMERCIAL_1}
+      - VAPI_COMMERCIAL_2=${VAPI_COMMERCIAL_2}
+      - VAPI_COMMERCIAL_3=${VAPI_COMMERCIAL_3}
+
+      # Google Sheets Configuration
+      - GOOGLE_SHEETS_SPREADSHEET_ID=${GOOGLE_SHEETS_SPREADSHEET_ID}
+      - GOOGLE_SHEETS_CREDENTIALS=${GOOGLE_SHEETS_CREDENTIALS}
+
+      # Payment Information
+      - STRIPE_PAYMENT_LINK=${STRIPE_PAYMENT_LINK}
+      - BSB_NUMBER=${BSB_NUMBER}
+      - ACCOUNT_NUMBER=${ACCOUNT_NUMBER}
+      - ACCOUNT_NAME=${ACCOUNT_NAME}
+      - BCS_MAILING_ADDRESS=${BCS_MAILING_ADDRESS}
+      - BCS_PHONE_NUMBER=${BCS_PHONE_NUMBER}
+      - BCS_EMAIL=${BCS_EMAIL}
+
+      # Database (optional)
+      - DATABASE_URL=${DATABASE_URL:-}
+
+    volumes:
+      # Use separate volume to avoid conflicts with existing n8n instance
+      - ~/.n8n-vapi:/home/node/.n8n
+
+    networks:
+      - n8n-network
+
+networks:
+  n8n-network:
+    driver: bridge
