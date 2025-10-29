@@ -357,11 +357,12 @@
       "position": [
         4544,
         688
-      ]
+      ],
+      "disabled": true
     },
     {
       "parameters": {
-        "jsCode": "// Parse Call Data from Webhook\n// Based on WORKFLOW_ADAPTATION_PLAN.md Section 4.3 with FIX #2 and #7 applied\n\n// FIX #2: Updated webhook payload parsing based on Vapi docs verification\n// const webhook = $input.item.json;\n// const message_new = $input.first().json.body.message \n\n\nconst message = $input.first().json.body.message;\n\n// Verify this is an end-of-call-report event\nif (message.type !== 'end-of-call-report') {\n  throw new Error(`Unexpected webhook type: ${message.type}`);\n}\n\nconst call = message.call;\nconst artifact = message.artifact || {};\nconsole.log(artifact);\nconst endedReason = message.endedReason;\n\n// Extract debtor_id from assistant overrides (stored in call object)\nconst debtorId = call.assistantOverrides?.variableValues?.debtor_id;\n\nif (!debtorId) {\n  throw new Error('Missing debtor_id in webhook');\n}\n\n// Check if call succeeded or failed\nconst callStatus = call.status; // \"ended\" or \"failed\"\n\n// Parse function call (log_outcome)\n// NOTE: Vapi may send this in artifact.messages array - needs testing\nlet outcome = 'UNKNOWN';\nlet paymentMethod = 'none';\nlet notes = '';\nlet promisedDate = null;\n\nif (callStatus === 'failed') {\n  // FIX #7: CALL_FAILED not in function enum - handle separately\n  outcome = 'CALL_FAILED';\n  notes = `Call failed: ${endedReason}`;\n} else if (artifact.messages && artifact.messages.length > 0) {\n  // Search for log_outcome function call in messages\n  // Function calls may appear as toolCalls in message objects\n  let functionCallFound = false;\n\n  for (const msg of artifact.messages) {\n    if (msg.toolCalls && Array.isArray(msg.toolCalls)) {\n      for (const toolCall of msg.toolCalls) {\n        if (toolCall.function?.name === 'log_outcome') {\n          // Parse function arguments (may be string or object)\n          const args = typeof toolCall.function.arguments === 'string'\n            ? JSON.parse(toolCall.function.arguments)\n            : toolCall.function.arguments;\n\n          outcome = args.outcome || 'UNKNOWN';\n          paymentMethod = args.payment_method || 'none';\n          notes = args.notes || '';\n          promisedDate = args.promised_date || null;\n          functionCallFound = true;\n          break;\n        }\n      }\n      if (functionCallFound) break;\n    }\n  }\n\n  if (!functionCallFound) {\n    // No function call found = likely no answer, voicemail, or system error\n    outcome = 'NO_ANSWER';\n    notes = 'No outcome logged by assistant (check transcript)';\n  }\n} else {\n  // No messages in artifact\n  outcome = 'NO_ANSWER';\n  notes = 'No conversation recorded';\n}\n\nreturn {\n  debtor_id: debtorId,\n  call_id: call.id,\n  call_status: callStatus,\n  recording_url: artifact.recording?.stereoUrl || call.recordingUrl || '',\n  transcript: artifact.transcript || '',\n  outcome: outcome,\n  payment_method: paymentMethod,\n  notes: notes,\n  promised_date: promisedDate,\n  // call_duration: call.endedAt && call.startedAt\n  //   ? (new Date(call.endedAt) - new Date(call.startedAt)) / 1000\n  //   : 0,\n  call_duration: (() => {\n  if (!message.startedAt || !message.endedAt) return 0;\n\n  const start = new Date(message.startedAt).getTime();\n  const end = new Date(message.endedAt).getTime();\n\n  if (isNaN(start) || isNaN(end)) return 0;\n\n  return (end - start) / 1000; // duration in seconds\n})(),\n\n};"
+        "jsCode": "// Parse Call Data from Webhook\n  // Based on WORKFLOW_ADAPTATION_PLAN.md Section 4.3 with FIX #2 and #7 applied\n\n  // FIX #2: Updated webhook payload parsing based on Vapi docs verification\n  const message = $input.first().json.body.message;\n\n  // Only process end-of-call-report events, ignore others\n  if (message.type !== 'end-of-call-report') {\n    return []; // Return empty array to stop workflow for this event\n  }\n\n  const call = message.call;\n  const artifact = message.artifact || {};\n  console.log(artifact);\n  const endedReason = message.endedReason;\n\n  // Extract debtor_id from assistant overrides (stored in call object)\n  const debtorId = call.assistantOverrides?.variableValues?.debtor_id;\n\n  if (!debtorId) {\n    throw new Error('Missing debtor_id in webhook');\n  }\n\n  // Check if call succeeded or failed\n  const callStatus = call.status; // \"ended\" or \"failed\"\n\n  // Parse function call (log_outcome)\n  // NOTE: Vapi may send this in artifact.messages array - needs testing\n  let outcome = 'UNKNOWN';\n  let paymentMethod = 'none';\n  let notes = '';\n  let promisedDate = null;\n\n  if (callStatus === 'failed') {\n    // FIX #7: CALL_FAILED not in function enum - handle separately\n    outcome = 'CALL_FAILED';\n    notes = `Call failed: ${endedReason}`;\n  } else if (artifact.messages && artifact.messages.length > 0) {\n    // Search for log_outcome function call in messages\n    // Function calls may appear as toolCalls in message objects\n    let functionCallFound = false;\n\n    for (const msg of artifact.messages) {\n      if (msg.toolCalls && Array.isArray(msg.toolCalls)) {\n        for (const toolCall of msg.toolCalls) {\n          if (toolCall.function?.name === 'log_outcome') {\n            // Parse function arguments (may be string or object)\n            const args = typeof toolCall.function.arguments === 'string'\n              ? JSON.parse(toolCall.function.arguments)\n              : toolCall.function.arguments;\n\n            outcome = args.outcome || 'UNKNOWN';\n            paymentMethod = args.payment_method || 'none';\n            notes = args.notes || '';\n            promisedDate = args.promised_date || null;\n            functionCallFound = true;\n            break;\n          }\n        }\n        if (functionCallFound) break;\n      }\n    }\n\n    if (!functionCallFound) {\n      // No function call found = likely no answer, voicemail, or system error\n      outcome = 'NO_ANSWER';\n      notes = 'No outcome logged by assistant (check transcript)';\n    }\n  } else {\n    // No messages in artifact\n    outcome = 'NO_ANSWER';\n    notes = 'No conversation recorded';\n  }\n\n  return {\n    debtor_id: debtorId,\n    call_id: call.id,\n    call_status: callStatus,\n    recording_url: artifact.recording?.stereoUrl || call.recordingUrl || '',\n    transcript: artifact.transcript || '',\n    outcome: outcome,\n    payment_method: paymentMethod,\n    notes: notes,\n    promised_date: promisedDate,\n    call_duration: (() => {\n      if (!message.startedAt || !message.endedAt) return 0;\n\n      const start = new Date(message.startedAt).getTime();\n      const end = new Date(message.endedAt).getTime();\n\n      if (isNaN(start) || isNaN(end)) return 0;\n\n      return (end - start) / 1000; // duration in seconds\n    })(),\n  };"
       },
       "id": "67ee8eec-a86e-40fe-9099-a9f12ae0631b",
       "name": "Parse Call Data1",
@@ -389,17 +390,17 @@
       "parameters": {
         "documentId": {
           "__rl": true,
-          "value": "1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48",
+          "value": "1VfXSEsJIGLNfs1kFAZWh3hlDXBXvZ6i3ZAGnV-iGZwA",
           "mode": "list",
           "cachedResultName": "BCS_Debtors_Template",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit?usp=drivesdk"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VfXSEsJIGLNfs1kFAZWh3hlDXBXvZ6i3ZAGnV-iGZwA/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
           "value": 1813436853,
           "mode": "list",
           "cachedResultName": "BCS_Debtors_Template.csv",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit#gid=1813436853"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VfXSEsJIGLNfs1kFAZWh3hlDXBXvZ6i3ZAGnV-iGZwA/edit#gid=1813436853"
         },
         "filtersUI": {
           "values": [
@@ -444,17 +445,17 @@
         "operation": "update",
         "documentId": {
           "__rl": true,
-          "value": "1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48",
+          "value": "1VfXSEsJIGLNfs1kFAZWh3hlDXBXvZ6i3ZAGnV-iGZwA",
           "mode": "list",
           "cachedResultName": "BCS_Debtors_Template",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit?usp=drivesdk"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VfXSEsJIGLNfs1kFAZWh3hlDXBXvZ6i3ZAGnV-iGZwA/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
           "value": 1813436853,
           "mode": "list",
           "cachedResultName": "BCS_Debtors_Template.csv",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit#gid=1813436853"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1VfXSEsJIGLNfs1kFAZWh3hlDXBXvZ6i3ZAGnV-iGZwA/edit#gid=1813436853"
         },
         "columnToMatchOn": "debtor_id",
         "valueToMatchOn": "={{ $json.debtor_id }}",
@@ -770,7 +771,7 @@
             {
               "id": "22faee3e-e007-4eae-88b4-52b47ee1288a",
               "name": "VAPI_PHONE_NUMBER_ID",
-              "value": "1da0ab85-a870-40d6-8828-b8986b9c5114",
+              "value": "d9e58b20-0739-4c2f-8d90-50c86cc35ef9",
               "type": "string"
             },
             {
@@ -1150,11 +1151,11 @@
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "ec8c2d3b-3bd0-400c-ab1a-4496a43baa34",
+  "versionId": "47bf2a7e-5b92-47dc-b55e-2ac59d71ca17",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "15fdefe217dd497a3644ac7579dc52a8d91ba7b8a26ac0fbdc9f2ffe89ed0a93"
