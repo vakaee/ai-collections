@@ -49,7 +49,7 @@
 
 ---
 
-#### Day 5-7 (Oct 7-9): Adapt Existing n8n Workflows (13.5h total)
+#### Day 5-7 (Oct 7-9): Adapt Existing n8n Workflows (10.5h total - PHASE 1)
 - [ ] **Adapt Workflow 1: BCS Call Scheduler** (2h) - from "Daily sync.json"
   - Update Google Sheets schema reference (23 columns)
   - Add phone normalization (E.164 format)
@@ -61,21 +61,24 @@
   - Add complete outcome routing (11 outcome types)
   - Add call ID and recording URL tracking
   - Add manual review email notifications
-- [ ] **Build Workflow 3: BCS Send Payment SMS** (1.5h) - adapt "Send sms with review link.json"
-  - Add payment method routing (credit card/bank/cheque)
-  - Build SMS templates with payment details
-- [ ] **Build Workflow 4: BCS SMS Status Handler** (0.5h) - new workflow
-  - Track SMS delivery confirmations from Twilio
-- [ ] **Build Workflow 5: BCS Test Webhook** (0.5h) - new workflow
+  - READY_TO_PAY schedules follow-up call (no SMS in Phase 1)
+- [ ] **Build Workflow 3: BCS Test Webhook** (0.5h) - new workflow
   - Mock Vapi payload for testing
-- [ ] Configure 6 Vapi Assistants with function definitions (2h)
+- [ ] Configure 6 Vapi Assistants with verbal payment instructions (2h)
+  - Add "pen and paper" confirmation scripts
+  - Add slow, clear verbal delivery of payment details
+  - Add confirmation that debtor wrote down information
 - [ ] Integration testing (2h)
 - [ ] Compliance testing (1h)
 - [ ] Test with 1 sample call to test phone number
 
-**Deliverable**: 5 workflows operational, first successful AI call made
+**Deliverable**: 3 workflows operational (Phase 1 scope), first successful AI call made with verbal payment delivery
 
-**Time Savings**: 13.5h vs 40h from scratch (66% faster using Airbnb boilerplate)
+**Time Savings**: 10.5h vs 40h from scratch (74% faster using Airbnb boilerplate)
+
+**Phase 2 Workflows** (deferred to Phase 2 contract: $2,000-3,000):
+- BCS Send Payment SMS (Twilio) - 1.5h
+- BCS SMS Status Handler - 0.5h
 
 ---
 
@@ -93,9 +96,9 @@
 - [ ] Configure Commercial 3rd Call assistant
 - [ ] Implement `log_outcome` function
 - [ ] Implement `verify_identity` function
-- [ ] Implement `send_payment_sms` function (NEW)
+- [ ] ~~Implement `send_payment_sms` function~~ (PHASE 2 ONLY - deferred)
 
-**Deliverable**: 6 Vapi assistants configured with draft scripts (can swap scripts later)
+**Deliverable**: 6 Vapi assistants configured with draft scripts and verbal payment instructions (can swap scripts later)
 
 ---
 
@@ -113,21 +116,23 @@
 
 ---
 
-#### Day 12-14 (Oct 14-16): SMS Payment & Email Workflows
-- [ ] **Set up Twilio account** (SMS delivery)
-- [ ] Build Workflow 3: SMS Payment Dispatcher (NEW)
-  - Send credit card payment link via SMS
-  - Send bank transfer details via SMS
-  - Send cheque address via SMS
-- [ ] Build Workflow 4: Email Dispatcher
-  - Send dispute email template
-  - Send hardship form
-- [ ] Build Workflow 5: Retry Manager
-  - Query NO_ANSWER calls from Google Sheets
-  - Schedule retries (2+ hours later, max 3 attempts)
-- [ ] Test payment SMS delivery with test phone numbers
+#### Day 12-14 (Oct 14-16): Testing & Refinement (PHASE 1)
+- [ ] Test verbal payment delivery with multiple test calls
+  - Verify AI asks for "pen and paper"
+  - Verify AI reads payment details slowly and clearly
+  - Verify AI confirms debtor wrote down information
+- [ ] Test all 11 outcome types with various scenarios
+- [ ] Test READY_TO_PAY outcome schedules follow-up call (3 days later)
+- [ ] Refine Vapi assistant prompts based on test results
+- [ ] Document any issues or edge cases discovered
 
-**Deliverable**: Complete workflow suite functional (SMS + email + retries)
+**Deliverable**: Verbal payment instructions working reliably, all outcomes routing correctly
+
+**PHASE 2 ONLY** (deferred to $2,000-3,000 contract):
+- ~~Set up Twilio account~~ (SMS delivery)
+- ~~Build SMS Payment Dispatcher~~ (credit card/bank/cheque SMS)
+- ~~Build SMS Status Handler~~ (delivery confirmations)
+- ~~Build Email Dispatcher~~ (dispute/hardship forms)
 
 ---
 
@@ -345,29 +350,37 @@ Phase 1 is complete when:
 
 ---
 
-## 7. Budget Breakdown (Updated for n8n + Twilio)
+## 7. Budget Breakdown (Phase 1: Voice-Only)
 
 | Item | Estimated Cost | Notes |
 |------|----------------|-------|
-| Development labor | $2,050 | Vlad's time |
+| Development labor | $2,066 | Vlad's time (10.5h implementation) |
 | Vapi subscription | $50 | 1 month, base plan |
 | Vapi phone number | $10 | Australian number rental |
 | Testing calls | $42 | 200 calls × 3 min × $0.07/min |
 | OpenAI API | $30 | GPT-4o usage for 200+ calls |
-| Twilio SMS | $16 | 200 SMS × $0.08 (payment delivery testing) |
+| ~~Twilio SMS~~ | ~~$16~~ | **PHASE 2 ONLY** (deferred) |
 | DigitalOcean Droplet | $12 | 1 month, $12/month plan |
 | Domain name (optional) | $12 | If custom domain needed |
 | SSL certificate | $0 | Let's Encrypt (free) |
 | n8n license | $0 | Self-hosted, no cost |
 | Google Sheets | $0 | Free (interim CRM) |
 | Contingency | $278 | Buffer for overages |
-| **TOTAL** | **[PRICE REDACTED]** | |
+| **TOTAL** | **$2,500** | Phase 1 contract amount |
+
+**Savings from Phase 1 scope**: $16 Twilio SMS testing costs deferred to Phase 2
 
 **Post-delivery ongoing costs** ([CLIENT]'s responsibility after handover):
 - Vapi: $50/month + per-minute charges (~$0.05-0.09/min)
-- Twilio SMS: $0.08 per SMS sent (payment delivery)
 - DigitalOcean: $12/month
 - OpenAI: Variable based on call volume (minimal, ~$0.01-0.03/call)
+- ~~Twilio SMS~~ (Phase 2 only - not needed for Phase 1)
+
+**Phase 2 Budget** (if commissioned: $2,000-3,000):
+- SMS automation implementation: 2h ($200)
+- Twilio setup and testing: $16
+- Email automation: 1h ($100)
+- Additional testing: $50
 
 ---
 
@@ -378,7 +391,7 @@ Phase 1 is complete when:
 - Payment: Not applicable (fixed price contract)
 
 **Milestone 2** (Oct 16): Workflows complete
-- All 4 n8n workflows functional, conversation logic working
+- All 3 n8n workflows functional (Phase 1 scope), conversation logic working with verbal payment delivery
 - Payment: Not applicable
 
 **Milestone 3** (Oct 23): Testing complete

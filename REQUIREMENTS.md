@@ -70,12 +70,16 @@
 - **Already paid**: Request proof of payment, log for manual review
 - **Wrong person**: Verify identity, update CRM if incorrect contact
 
-**REQ-010**: System shall provide payment information VERBALLY during call
-- Bank transfer details: AI reads BSB, account number, account name, reference
-- Credit card payment: AI provides phone number or Stripe payment link verbally
+**REQ-010**: System shall provide payment information VERBALLY during call (**PHASE 1 PRIMARY METHOD**)
+- **Phase 1 Scope**: ALL payment details delivered verbally (no SMS)
+- AI asks debtor: "Do you have a pen and paper handy?"
+- Bank transfer details: AI reads BSB, account number, account name, reference slowly and clearly
+- Credit card payment: AI provides phone number for payments, office hours
 - Cheque payment: AI reads mailing address and reference number
+- AI repeats all payment details once
 - AI confirms debtor has written down details before ending call
-- **Note**: SMS delivery of payment details is Phase 2 feature
+- Follow-up call scheduled in 3 days to confirm payment received
+- **Note**: SMS delivery of payment details is Phase 2 feature (deferred to $2,000-3,000 contract, not yet commissioned)
 
 **REQ-011**: System shall escalate to human in these scenarios:
 - Debtor uses trigger words: "lawyer," "complaint," "ombudsman," "sue"

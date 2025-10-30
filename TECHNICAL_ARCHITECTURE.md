@@ -70,10 +70,15 @@
 | **Database** | PostgreSQL | Reliable, ACID-compliant, good for structured data |
 | **Telephony** | Vapi.ai | Native AI voice agent platform, faster development |
 | **LLM** | OpenAI GPT-4o | Low latency, proven voice conversation handling |
-| **SMS** | Twilio | Payment details delivery, native n8n integration |
 | **Deployment** | Docker Compose | Containerized deployment, easy to replicate and scale |
 | **Hosting** | DigitalOcean Droplet | Affordable ($6-12/month), supports Docker, full control |
 | **CRM (Interim)** | Google Sheets | **STOPGAP**: Quick start, migrate to real CRM later |
+
+**Phase 2 Components** (deferred to $2,000-3,000 contract):
+| Component | Technology | Rationale |
+|-----------|-----------|-----------|
+| **SMS** | Twilio | Payment details delivery via SMS, native n8n integration |
+| **Email** | SMTP/SendGrid | Automated dispute/hardship form delivery |
 
 ### 2.2 Alternative Considerations
 
@@ -104,11 +109,12 @@
 - **Decision**: Google Sheets for Phase 1 (STOPGAP), migrate to real CRM later
 - **Migration path**: Swap Google Sheets node with PostgreSQL/MySQL node in n8n workflows
 
-**SMS: Twilio for Payment Delivery**
-- **Why**: Send payment links/details via SMS instead of verbal-only instructions
-- **Benefits**: Higher conversion (immediate action), no transcription errors, persistent reference
-- **Cost**: ~$0.08 per SMS to Australia
-- **Integration**: Native n8n Twilio node
+**SMS: Twilio for Payment Delivery (PHASE 2 ONLY)**
+- **Status**: Deferred to Phase 2 ($2,000-3,000, not yet commissioned)
+- **Phase 1 Approach**: Payment details provided VERBALLY during calls
+- **Phase 2 Benefits**: Higher conversion (immediate action), no transcription errors, persistent reference
+- **Cost**: ~$0.08 per SMS to Australia (Phase 2 only)
+- **Integration**: Native n8n Twilio node (Phase 2 implementation)
 
 ---
 
@@ -380,12 +386,14 @@ HANDLE_RESPONSE
 
 n8n will handle all orchestration via visual workflows. No custom API code required.
 
-**5 workflows total** (Phase 1) - adapted from existing Airbnb workflows:
+**3 workflows total (PHASE 1)** - adapted from existing Airbnb workflows:
 1. BCS Call Scheduler (every 30 min, Google Sheets → Vapi)
 2. BCS Vapi Webhook Handler (processes outcomes, routes actions)
-3. BCS Send Payment SMS (Twilio SMS with payment details)
-4. BCS SMS Status Handler (tracks delivery confirmations)
-5. BCS Test Webhook (testing tool for development)
+3. BCS Test Webhook (testing tool for development)
+
+**Phase 2 Workflows** (deferred to $2,000-3,000 contract):
+4. BCS Send Payment SMS (Twilio SMS with payment details)
+5. BCS SMS Status Handler (tracks delivery confirmations)
 
 **Key Security & Reliability Features**:
 - Webhook signature verification (HMAC SHA-256)
@@ -443,7 +451,7 @@ n8n will handle all orchestration via visual workflows. No custom API code requi
 [Code Node - Calculate Next Action]
   - 11 outcome types with routing logic:
     * PROMISE_TO_PAY → schedule follow-up (7 days)
-    * READY_TO_PAY → trigger payment SMS
+    * READY_TO_PAY → schedule follow-up (3 days) - PHASE 1: verbal payment only
     * NO_ANSWER / VOICEMAIL → retry in 4 hours
     * WRONG_NUMBER → manual review, stop AI
     * DISPUTE_RAISED / HARDSHIP_CLAIMED → manual review
@@ -458,24 +466,38 @@ n8n will handle all orchestration via visual workflows. No custom API code requi
 [Code Node - Prepare Update Data]
   - Increment attempt_number
   - Append timestamped notes
+  - PHASE 1: Log verbal payment delivery in notes
   ↓
 [Google Sheets - Update Row]
   - 12 columns: call_status, call_id, recording_url, last_call_date,
     last_outcome, next_action, next_call_date, attempt_number, notes,
     assigned_to_ai, payment_status, do_not_call
   ↓
-[IF - outcome = READY_TO_PAY or PROMISE_TO_PAY?]
-  ↓ (yes)
-  [HTTP Request - Trigger BCS Send Payment SMS]
-  ↓
 [IF - next_action = MANUAL_REVIEW?]
   ↓ (yes)
   [Email - Notify Peter]
+
+**Note**: READY_TO_PAY in Phase 1 schedules follow-up call (not SMS). Payment details delivered verbally during call.
 ```
 
 ---
 
-**Workflow 3: BCS Send Payment SMS**
+**Workflow 3: BCS Test Webhook (Testing)**
+```
+[Manual Trigger]
+  ↓
+[Code Node - Mock Vapi Payload]
+  - Sample outcomes (PROMISE_TO_PAY, READY_TO_PAY, etc.)
+  ↓
+[HTTP Request - POST to Workflow 2]
+  - Test outcome logic without real calls
+```
+
+---
+
+### 5.2 Phase 2 Workflows (Deferred to $2,000-3,000 Contract)
+
+**Workflow 4: BCS Send Payment SMS (PHASE 2 ONLY)**
 ```
 [Webhook Trigger - POST from Workflow 2]
   - Payload: { debtor_id, payment_method }
@@ -494,9 +516,7 @@ n8n will handle all orchestration via visual workflows. No custom API code requi
   - Log: "Payment SMS sent via {method}"
 ```
 
----
-
-**Workflow 4: BCS SMS Status Handler**
+**Workflow 5: BCS SMS Status Handler (PHASE 2 ONLY)**
 ```
 [Webhook Trigger - POST from Twilio]
   - Payload: { MessageStatus, To, ErrorCode }
@@ -510,22 +530,11 @@ n8n will handle all orchestration via visual workflows. No custom API code requi
   - Log: "SMS delivered" or "SMS failed (Error: {code})"
 ```
 
----
-
-**Workflow 5: BCS Test Webhook (Testing)**
-```
-[Manual Trigger]
-  ↓
-[Code Node - Mock Vapi Payload]
-  - Sample outcomes (PROMISE_TO_PAY, READY_TO_PAY, etc.)
-  ↓
-[HTTP Request - POST to Workflow 2]
-  - Test outcome logic without real calls
-```
+**Implementation**: These workflows will be built when Phase 2 is commissioned.
 
 ---
 
-### 5.2 Vapi API Integration (n8n HTTP Request Node)
+### 5.3 Vapi API Integration (n8n HTTP Request Node)
 
 **Initiate Call** (n8n HTTP Request node configuration):
 
@@ -557,7 +566,7 @@ n8n will handle all orchestration via visual workflows. No custom API code requi
 
 ---
 
-### 5.3 n8n Code Nodes (Custom Logic)
+### 5.4 n8n Code Nodes (Custom Logic)
 
 **Parse Vapi Outcome** (Code node in Workflow 2):
 
@@ -640,7 +649,7 @@ return { withinHours };
 
 ---
 
-### 5.4 Twilio SMS Integration (Payment Delivery)
+### 5.5 Twilio SMS Integration (PHASE 2 ONLY - Payment Delivery)
 
 **SMS Templates** (n8n Twilio node configuration):
 
@@ -1132,21 +1141,25 @@ MIN_HOURS_BETWEEN_CALLS=2
   - ❌ No relational integrity or constraints
 - **Status**: INTERIM - Will migrate to real CRM post-Phase 1
 
-**ADR-007**: Use Twilio SMS for payment delivery
+**ADR-007**: ~~Use Twilio SMS for payment delivery~~ **DEFERRED TO PHASE 2**
+- **Status**: **SUPERSEDED** - Moved to Phase 2 ($2,000-3,000, not yet commissioned)
 - **Context**: Need to deliver payment details to debtors who agree to pay
-- **Decision**: Send payment links/details via SMS (Twilio) instead of verbal-only
-- **Rationale**:
-  - Higher conversion (debtor can click link immediately)
-  - No transcription errors (written BSB/account vs. mishearing)
-  - Persistent reference (debtor can revisit SMS)
-  - Modern, professional approach
-- **Consequences**:
-  - ✅ Improved payment completion rate
-  - ✅ Better debtor experience
-  - ✅ Trackable (delivery confirmations)
-  - ❌ Additional cost (~$0.08 per SMS)
-  - ❌ Requires Twilio account setup
-- **Cost impact**: ~$8 for 100 payment SMS (acceptable)
+- **Original Decision**: Send payment links/details via SMS (Twilio)
+- **Phase 1 Revision**: Payment details provided VERBALLY during calls (Sep 21, 2025 scope clarification)
+- **Phase 1 Approach**:
+  - AI asks debtor for "pen and paper"
+  - AI reads payment details slowly and clearly (BSB, account, Stripe link, or mailing address)
+  - AI repeats details once
+  - AI confirms debtor wrote down all information
+  - Follow-up call scheduled in 3 days to confirm payment received
+- **Phase 2 Benefits** (when commissioned):
+  - ✅ Higher conversion (debtor can click link immediately)
+  - ✅ No transcription errors
+  - ✅ Persistent reference (debtor can revisit SMS)
+  - ✅ Trackable delivery confirmations
+- **Cost impact**:
+  - Phase 1: $0 (verbal only)
+  - Phase 2: ~$8 for 100 payment SMS + $200 implementation
 
 ---
 

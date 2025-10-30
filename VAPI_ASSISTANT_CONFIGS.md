@@ -117,9 +117,13 @@ This document contains the configuration for all 6 Vapi assistants used in the B
 
 ---
 
-## Verbal Payment Instructions (IMPORTANT)
+## Verbal Payment Instructions (PHASE 1 PRIMARY METHOD)
+
+**⚠️ PHASE 1 SCOPE**: Payment details are delivered VERBALLY only. SMS automation is deferred to Phase 2 ($2,000-3,000, not yet commissioned).
 
 **When to Use**: When debtor agrees to pay immediately (READY_TO_PAY outcome)
+
+**Important**: This is NOT a fallback method - verbal delivery is the PRIMARY and ONLY payment delivery method in Phase 1.
 
 ### Payment Method: Bank Transfer
 

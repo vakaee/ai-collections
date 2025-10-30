@@ -45,34 +45,37 @@
 
 ## 2. High Priority Items (Nice to Have, Not Blocking)
 
-### 2.1 Payment Information for SMS Delivery
+### 2.1 Payment Information for Verbal Delivery (PHASE 1) / SMS (PHASE 2)
 
-**Needed from**: Peter
+**Needed from**: [CLIENT]
 
 **Required for**:
-- SMS payment delivery (via Twilio)
-- Conversation scripts
+- **Phase 1**: Verbal payment instructions during calls (CURRENT SCOPE)
+- **Phase 2**: SMS payment delivery (deferred to $2,000-3,000 contract)
 
 **Details needed**:
 
-**For bank transfer SMS**:
+**For bank transfer** (verbal/SMS):
+- Bank name
 - BSB number
 - Account number
 - Account name
 - BCS phone number (for questions)
 
-**For credit card SMS**:
-- Stripe payment link (or Vlad can set up)
-- OR generic payment portal URL
+**For credit card** (verbal/SMS):
+- BCS phone number for credit card payments
+- Office hours for payments
+- Optional: Stripe payment link (Phase 2 SMS only)
+
+**For cheque** (verbal/SMS):
+- BCS mailing address (street, suburb, state, postcode)
 - BCS phone number (for questions)
 
-**For cheque SMS**:
-- BCS mailing address
-- BCS phone number (for questions)
+**Urgency**:
+- 🟡 **Phase 1**: Medium - Need by Oct 14 for verbal delivery testing
+- 🟢 **Phase 2 SMS**: Low - Not needed until Phase 2 commissioned
 
-**Urgency**: 🟡 Medium - Need by Oct 14 (when SMS workflows built)
-
-**Workaround**: Use placeholder text in SMS templates, update later
+**Phase 1 Approach**: AI will read payment details verbally during calls. No SMS in Phase 1.
 
 **Status**: PENDING
 

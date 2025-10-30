@@ -38,7 +38,29 @@ Building an AI-powered voice bot for outbound debt collection calls on behalf of
 
 ---
 
-## Phase 1 Success Criteria
+## Phase 1 Scope & Success Criteria
+
+### Phase 1 Deliverables (Voice-Only: $2,500 + $500 bonus)
+
+**IN SCOPE**:
+1. **Voice-only outbound calling** (automated scheduling and execution)
+2. **3 n8n workflows** (Call Scheduler, Webhook Handler, Test Webhook)
+3. **Verbal payment instructions** (AI reads payment details during call)
+4. **Google Sheets interim CRM** (23-column schema with call outcome tracking)
+5. **6 Vapi assistants** (consumer/commercial × 1st/2nd/3rd call scripts)
+6. **Compliance features** (business hours, max 3 attempts, do-not-call, recording)
+7. **Call outcome logging** (11+ structured outcomes)
+8. **Manual review flagging** (disputes, hardship, escalations)
+
+**OUT OF SCOPE (Phase 1)**:
+- ❌ SMS automation (deferred to Phase 2: $2,000-3,000)
+- ❌ Email automation (deferred to Phase 2)
+- ❌ Inbound call handling
+- ❌ Management dashboard
+- ❌ Payment processing integration
+- ❌ Default placement execution (remains manual decision)
+
+### Success Criteria
 
 Per [CLIENT]'s definition, Phase 1 is complete when:
 
@@ -50,6 +72,8 @@ Per [CLIENT]'s definition, Phase 1 is complete when:
    - Dispute raised
    - Message left with callback details
    - Other structured outcomes (see CONVERSATION_DESIGN.md)
+4. **Payment instructions**: AI delivers payment details verbally and confirms debtor wrote them down
+5. **Compliance**: All mandatory disclosures made, business hours enforced
 
 **Important constraint**: Default placement (personal or company) remains a manual decision - the AI will NOT execute defaults.
 
@@ -87,12 +111,12 @@ Per [CLIENT]'s definition, Phase 1 is complete when:
 - Initial communication established
 
 ### What We're Waiting For (from [CLIENT])
-- Test CRM database access (credentials or API documentation)
-- Call scripts (1st/2nd/3rd call for consumer + commercial debtors)
-- SMS templates (1st/2nd/3rd message)
-- Registered email address for dispute submissions
-- Hardship proof template
-- Clarification on phone number to use for outbound calls
+- ~~Test CRM database access~~ (RESOLVED: Using Google Sheets interim CRM)
+- ~~Call scripts~~ (RESOLVED: Drafting from Letter of Demand templates)
+- ~~SMS templates~~ (PHASE 2 ONLY - not needed for Phase 1)
+- Payment information (BSB, account, phone numbers) - for verbal delivery in Phase 1
+- Registered email address for dispute submissions (nice to have)
+- ~~Clarification on phone number~~ (RESOLVED: Using Vapi-provided Australian number)
 
 ### Development Status
 - **Phase 1a**: Not started (awaiting CRM access and scripts)

@@ -504,108 +504,123 @@ Good morning/afternoon, this is [AGENT_NAME] from [COLLECTION AGENCY] calling fo
 
 ---
 
-## 8. Payment Information & SMS Delivery
+## 8. Payment Information Delivery (Phase 1: Verbal Only)
 
-### 8.1 Payment Delivery Method: SMS (Preferred)
+### 8.1 Phase 1 Payment Delivery Method: Verbal Instructions
 
-**Approach**: Instead of providing payment details verbally (prone to transcription errors), send payment instructions via SMS.
+**⚠️ PHASE 1 SCOPE**: Payment details are provided VERBALLY during the call. SMS/email automation is deferred to Phase 2 ($2,000-3,000, not yet commissioned).
 
-**Benefits**:
-- ✅ Higher conversion (debtor can act immediately)
-- ✅ No transcription errors
-- ✅ Persistent reference (debtor can revisit SMS)
-- ✅ Professional, modern approach
+**Approach**: AI bot provides payment instructions verbally and confirms debtor has written them down.
+
+**Phase 1 Process**:
+1. AI asks debtor if they have pen and paper ready
+2. AI reads payment details slowly and clearly
+3. AI repeats details once
+4. AI confirms debtor wrote down all information
+5. Follow-up call scheduled in 3 days to confirm payment received
 
 ---
 
-### 8.2 AI Bot Script (When Debtor Agrees to Pay)
+### 8.2 AI Bot Script (When Debtor Agrees to Pay) - PHASE 1
 
-**AI Bot**: "Great! How would you like to make payment today? I can send you details via text message for:
-- Credit card payment (secure online link)
+**AI Bot**: "Great! Before we proceed, do you have a pen and paper handy to write down the payment details?"
+
+**[Wait for debtor confirmation]**
+
+**AI Bot**: "Thank you. How would you like to make payment? We accept:
 - Bank transfer
-- Cheque mailing address"
+- Credit card (by calling our office)
+- Cheque by mail"
 
-**Debtor chooses payment method**
-
-**AI Bot**: "Perfect. I'll send you the [payment method] details via SMS to this number ending in [last 4 digits] right now. You should receive it within the next minute. Is there anything else I can help you with?"
-
-**Then**: n8n workflow sends SMS via Twilio
+**[Debtor chooses payment method]**
 
 ---
 
-### 8.3 SMS Templates
+### 8.3 Verbal Payment Instructions (Phase 1)
 
-#### Credit Card Payment SMS
-```
-[COLLECTION AGENCY]
+#### Bank Transfer (Verbal)
 
-Pay $1,500 now via credit card:
-[STRIPE_PAYMENT_LINK]
+**AI Bot**:
+"You can transfer funds to the following account. I'll read it slowly so you can write it down:
 
-Questions? Call [BCS_PHONE]
-```
+Bank: [BANK NAME]
+BSB: [XXX-XXX] - that's [X-X-X dash X-X-X]
+Account number: [XXXXXXXXX] - that's [read each digit]
+Account name: [COLLECTION AGENCY]
+Reference: [DEBTOR_ID] - this is important so we can identify your payment
+Amount: $[AMOUNT]
 
-**Notes**:
-- Requires Stripe Payment Link setup ([CLIENT] to provide or Vlad to set up)
-- Link can be generic (manual amount entry) or dynamic (pre-filled amount per debtor)
+Let me repeat that for you:
+BSB [XXX-XXX], account [XXXXXXXXX], account name [COLLECTION AGENCY], reference [DEBTOR_ID].
 
----
+Have you written down all the details?
 
-#### Bank Transfer SMS
-```
-[COLLECTION AGENCY]
-Bank Transfer Details:
+[If yes] Perfect. You have 7 days to make this payment to avoid further action. I'll call you back in 3 days to confirm we've received it.
 
-BSB: XXX-XXX
-Account: XXXXXXXXX
-Account Name: [COLLECTION AGENCY]
-Reference: [DEBTOR_ID]
-Amount: $1,500
+[If no] No problem, let me repeat that..."
 
-Questions? Call [BCS_PHONE]
-```
-
-**To be provided by Peter**:
+**To be provided by [CLIENT]**:
+- Bank name
 - BSB number
 - Account number
 - Account name
-- BCS phone number
 
 ---
 
-#### Cheque Payment SMS
-```
-[COLLECTION AGENCY]
-Mail cheque to:
+#### Credit Card (Verbal)
 
-[BCS_ADDRESS]
-[SUBURB, STATE, POSTCODE]
+**AI Bot**:
+"You can make a credit card payment by calling our office. Let me give you the number:
+
+Phone: [BCS_PHONE] - that's [read digits clearly, e.g., "zero-four-one-two, three-four-five, six-seven-eight"]
+
+Our office hours are Monday to Friday, 9am to 5pm Australian Eastern Standard Time.
+
+When you call, please have your account reference ready: [DEBTOR_ID]
+
+Have you written down the phone number and reference?
+
+[If yes] Great. Please call us within the next 7 days to process your payment."
+
+**To be provided by [CLIENT]**:
+- BCS phone number for credit card payments
+- Office hours
+
+---
+
+#### Cheque (Verbal)
+
+**AI Bot**:
+"You can mail a cheque to our office. Let me give you the address:
 
 Payable to: [COLLECTION AGENCY]
-Amount: $1,500
-Reference: [DEBTOR_ID]
+Mail to: [BCS_ADDRESS]
+         [SUBURB], [STATE] [POSTCODE]
 
-Questions? Call [BCS_PHONE]
-```
+Please include your reference number: [DEBTOR_ID]
+Amount: $[AMOUNT]
 
-**To be provided by Peter**:
-- BCS mailing address
-- BCS phone number
+Let me repeat the address:
+[BCS_ADDRESS], [SUBURB], [STATE] [POSTCODE]
+
+Have you written down the address and reference number?
+
+[If yes] Perfect. Please post the cheque within the next 7 days to avoid further action."
+
+**To be provided by [CLIENT]**:
+- BCS mailing address (street, suburb, state, postcode)
 
 ---
 
-### 8.4 Fallback: Verbal Payment Instructions (If SMS Fails)
+### 8.4 Phase 2: SMS/Email Automation (Future)
 
-**If debtor says "I don't have SMS"** or Twilio send fails:
+**Note**: In Phase 2 ($2,000-3,000, not yet commissioned), payment details will be delivered via SMS/email for:
+- Higher conversion rates
+- No transcription errors
+- Persistent reference for debtor
+- Immediate action (clickable payment links)
 
-**Bank transfer (verbal)**:
-"You can transfer funds to BSB [XXX-XXX], account number [XXXXXXXXX], account name [COLLECTION AGENCY]. Please use reference [DEBTOR_ID] so we can identify your payment. Would you like me to repeat that?"
-
-**Credit card (verbal)**:
-"You can call our office at [BCS_PHONE] to process a credit card payment over the phone."
-
-**Cheque (verbal)**:
-"You can mail a cheque to [BCS_ADDRESS]. Please make it payable to [COLLECTION AGENCY] and include reference [DEBTOR_ID]."
+See [SMS_TEMPLATES.md](./SMS_TEMPLATES.md) for Phase 2 reference templates.
 
 ---
 
@@ -649,27 +664,13 @@ Questions? Call [BCS_PHONE]
 
 ---
 
-### 9.3 send_payment_sms
+### 9.3 send_payment_sms (PHASE 2 ONLY - Not in Phase 1)
 
-**When to call**: When debtor agrees to pay and chooses payment method
+**Status**: Deferred to Phase 2 ($2,000-3,000, not yet commissioned)
 
-**Parameters**:
-```json
-{
-  "payment_method": "credit_card | bank_transfer | cheque",
-  "phone_number": "debtor's phone number (E.164 format)"
-}
-```
+**When to call**: When debtor agrees to pay and chooses payment method (Phase 2 only)
 
-**Response**:
-```json
-{
-  "sms_sent": true | false,
-  "message": "SMS sent successfully" | "SMS failed, please provide details verbally"
-}
-```
-
-**Implementation**: This function triggers n8n workflow to send Twilio SMS with appropriate template
+**Note**: In Phase 1, payment details are provided VERBALLY. This function will be implemented in Phase 2 for SMS automation.
 
 ---
 
