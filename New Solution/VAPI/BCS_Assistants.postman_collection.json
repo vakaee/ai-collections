@@ -10,7 +10,7 @@
 		"bearer": [
 			{
 				"key": "token",
-				"value": "7dc13a80-ba46-4761-9b32-104ffbbf0a63",
+				"value": "{{VAPI_API_KEY}}",
 				"type": "string"
 			}
 		]
