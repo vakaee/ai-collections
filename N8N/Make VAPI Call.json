@@ -1,0 +1,240 @@
+{
+  "name": "Peter S: Make VAPI Call",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48",
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1813436853,
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template.csv",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit#gid=1813436853"
+        },
+        "columnToMatchOn": "debtor_id",
+        "valueToMatchOn": "={{ $json.debtor_id }}",
+        "fieldsUi": {
+          "values": [
+            {
+              "column": "call_status"
+            },
+            {
+              "column": "notes",
+              "fieldValue": "=[{{$now}}] Vapi call failed: {{$node['Call Vapi API1'].json.error}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3ab0e9a3-ab3b-47aa-9748-ef263666379f",
+      "name": "Google Sheets - Reset call_status",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        6128,
+        64
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TRnq8nNPjHBRDGiO",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48",
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1813436853,
+          "mode": "list",
+          "cachedResultName": "BCS_Debtors_Template.csv",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit#gid=1813436853"
+        },
+        "columnToMatchOn": "debtor_id",
+        "valueToMatchOn": "={{ $json.debtor_id }}",
+        "fieldsUi": {
+          "values": [
+            {
+              "column": "call_status",
+              "fieldValue": "calling"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1ec87213-c599-4a2b-bad0-ff169a635d9c",
+      "name": "Set call_status = calling1",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        5456,
+        64
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "TRnq8nNPjHBRDGiO",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vapi.ai/call/phone",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.vapi_api_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.vapi_payload }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "1d9950a5-3347-4554-88ce-c88efffd03dc",
+      "name": "Call Vapi API1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        5680,
+        64
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "condition-001",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0f6e481e-7f97-42f3-a1bf-a822883fdb70",
+      "name": "IF - Call Successful?1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        5904,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "238ba795-ee10-406e-bb67-f3a4cefcd8b6",
+      "typeVersion": 1.1,
+      "name": "Start",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        5232,
+        64
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets - Reset call_status": {
+      "main": [
+        []
+      ]
+    },
+    "Set call_status = calling1": {
+      "main": [
+        [
+          {
+            "node": "Call Vapi API1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Vapi API1": {
+      "main": [
+        [
+          {
+            "node": "IF - Call Successful?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Call Successful?1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Google Sheets - Reset call_status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Set call_status = calling1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "00d37ac5-3b4d-48df-bfb5-2e82e022a54e",
+  "meta": {
+    "instanceId": "15fdefe217dd497a3644ac7579dc52a8d91ba7b8a26ac0fbdc9f2ffe89ed0a93"
+  },
+  "id": "ukRc77KQcAOncaw8",
+  "tags": []
+}

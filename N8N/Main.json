@@ -2,72 +2,14 @@
   "name": "Peter S",
   "nodes": [
     {
-      "parameters": {
-        "operation": "update",
-        "documentId": {
-          "__rl": true,
-          "value": "1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48",
-          "mode": "list",
-          "cachedResultName": "BCS_Debtors_Template",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit?usp=drivesdk"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": 1813436853,
-          "mode": "list",
-          "cachedResultName": "BCS_Debtors_Template.csv",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit#gid=1813436853"
-        },
-        "columnToMatchOn": "debtor_id",
-        "valueToMatchOn": "={{$node['Normalize Phone & Prepare Variables1'].json.debtor_id}}",
-        "fieldsUi": {
-          "values": [
-            {
-              "column": "call_status"
-            },
-            {
-              "column": "notes",
-              "fieldValue": "=[{{$now}}] Vapi call failed: {{$node['Call Vapi API1'].json.error}}"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "3ab0e9a3-ab3b-47aa-9748-ef263666379f",
-      "name": "Google Sheets - Reset call_status",
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 3,
-      "position": [
-        6112,
-        144
-      ],
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "TRnq8nNPjHBRDGiO",
-          "name": "Google Sheets account"
-        }
-      }
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.noOp",
-      "name": "Replace Me1",
-      "typeVersion": 1,
-      "position": [
-        6336,
-        144
-      ],
-      "id": "492a1e2d-5c3d-4b39-8fe9-23581b107182"
-    },
-    {
       "parameters": {},
       "id": "8c77ef4c-dc5b-47bd-9a2f-de14a16221bd",
       "name": "Every 30 Minutes1",
       "type": "n8n-nodes-base.cron",
       "typeVersion": 1,
       "position": [
-        4080,
-        128
+        3968,
+        144
       ]
     },
     {
@@ -93,7 +35,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 3,
       "position": [
-        4544,
+        4416,
         144
       ],
       "credentials": {
@@ -112,148 +54,21 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4752,
+        4640,
         144
       ]
     },
     {
       "parameters": {
-        "options": {}
-      },
-      "id": "6ce9e4eb-e043-4a50-96d3-d1e657f44776",
-      "name": "Split Into Items1",
-      "type": "n8n-nodes-base.splitInBatches",
-      "typeVersion": 3,
-      "position": [
-        4992,
-        144
-      ],
-      "alwaysOutputData": false,
-      "oncePerBatch": false
-    },
-    {
-      "parameters": {
-        "jsCode": "// Normalize Phone & Prepare Vapi Variables\n\n  // Get config from Set node (change 'Set' to your actual node name if different)\n  const config = $('Set').first().json;\n\n  // Get debtor data\n  // Get debtor data - REFERENCE THE CORRECT NODE\n  const data = $('Read BCS Debtors1').first().json;  \n\n  // Phone normalization function\n  function normalizePhone(phone) {\n    if (!phone) return null;\n\n    let cleaned = phone.toString().replace(/[\\s\\-\\(\\)\\.\\+]/g, '');\n\n    // Case 1: Already has country code (11+ digits, no leading 0)\n    if (cleaned.length >= 11 && !cleaned.startsWith('0')) {\n      if (cleaned.startsWith('61')) {\n        return '+' + cleaned;\n      }\n      if (cleaned.startsWith('1') && cleaned.length === 11) {\n        return '+' + cleaned;\n      }\n      if (cleaned.startsWith('44')) {\n        return '+' + cleaned;\n      }\n      if (cleaned.length >= 11 && cleaned.length <= 15) {\n        return '+' + cleaned;\n      }\n    }\n\n    // Case 2: Australian local format (starts with 0, exactly 10 digits)\n    if (cleaned.startsWith('0') && cleaned.length === 10) {\n      return '+61' + cleaned.substring(1);\n    }\n\n    // Case 3: North American (exactly 10 digits, does NOT start with 0)\n    if (cleaned.length === 10 && !cleaned.startsWith('0')) {\n      return '+1' + cleaned;\n    }\n\n    // Case 4: Ambiguous\n    if (cleaned.length >= 7 && cleaned.length <= 9) {\n      throw new Error(`Ambiguous phone number: ${phone}. Please include country code.`);\n    }\n\n    throw new Error(`Invalid phone number: ${phone}. Got ${cleaned.length} digits: ${cleaned}`);\n  }\n\n  // Assistant selection\n  const debtorType = (data.debtor_type || 'consumer').toLowerCase();\n  const attemptNumber = parseInt(data.attempt_number) || 1;\n\n  const assistantMap = {\n    'consumer_1': config.VAPI_CONSUMER_1,\n    'consumer_2': config.VAPI_CONSUMER_2,\n    'consumer_3': config.VAPI_CONSUMER_3,\n    'commercial_1': config.VAPI_COMMERCIAL_1,\n    'commercial_2': config.VAPI_COMMERCIAL_2,\n    'commercial_3': config.VAPI_COMMERCIAL_3\n  };\n\n  const assistantKey = `${debtorType}_${attemptNumber}`;\n  const assistantId = assistantMap[assistantKey];\n\n  if (!assistantId) {\n    throw new Error(`No assistant found for ${assistantKey}. Check Set node has VAPI_CONSUMER_1, etc.`);\n  }\n\n  // Prepare Vapi call payload\n  return {\n    debtor_id: data.debtor_id,\n    row_number: data.row_number,\n    phone_normalized: normalizePhone(data.phone),\n    phone_original: data.phone,\n    assistant_id: assistantId,\n    vapi_payload: {\n      assistantId: assistantId,\n      customer: {\n        number: normalizePhone(data.phone)\n      },\n      phoneNumberId: config.VAPI_PHONE_NUMBER_ID,\n      assistantOverrides: {\n        variableValues: {\n          debtor_id: data.debtor_id.toString(),\n          debtor_name: data.name,\n          amount: data.amount.toString(),\n          creditor: data.creditor,\n          invoice_number: data.invoice_number,\n          dob: data.dob || '',\n          abn: data.abn || '',\n          attempt_number: attemptNumber.toString(),\n          collection_agency: config.COLLECTION_AGENCY || 'Brodie Collection Services',\n          bcs_phone_number: config.BCS_PHONE_NUMBER,\n          stripe_payment_link: config.STRIPE_PAYMENT_LINK,\n          bcs_mailing_address: config.BCS_MAILING_ADDRESS,\n          agent_name: config.AGENT_NAME || 'Sarah',\n          Bank_name: config.BANK_NAME || 'Commonwealth Bank',\n          BSB: config.BSB_NUMBER,\n          Account_Number: config.ACCOUNT_NUMBER\n        }\n      }\n    }\n  };"
+        "jsCode": "// Normalize Phone & Prepare Vapi Variables\n\n  // Get config from Set node (change 'Set' to your actual node name if different)\n  const config = $('Set').first().json;\nconst VAPI_API_KEY=config.VAPI_API_KEY;\n\n  // Get debtor data\n  // Get debtor data - REFERENCE THE CORRECT NODE\n  const data = $('Read BCS Debtors1').first().json;  \n\n  // Phone normalization function\n  function normalizePhone(phone) {\n    if (!phone) return null;\n\n    let cleaned = phone.toString().replace(/[\\s\\-\\(\\)\\.\\+]/g, '');\n\n    // Case 1: Already has country code (11+ digits, no leading 0)\n    if (cleaned.length >= 11 && !cleaned.startsWith('0')) {\n      if (cleaned.startsWith('61')) {\n        return '+' + cleaned;\n      }\n      if (cleaned.startsWith('1') && cleaned.length === 11) {\n        return '+' + cleaned;\n      }\n      if (cleaned.startsWith('44')) {\n        return '+' + cleaned;\n      }\n      if (cleaned.length >= 11 && cleaned.length <= 15) {\n        return '+' + cleaned;\n      }\n    }\n\n    // Case 2: Australian local format (starts with 0, exactly 10 digits)\n    if (cleaned.startsWith('0') && cleaned.length === 10) {\n      return '+61' + cleaned.substring(1);\n    }\n\n    // Case 3: North American (exactly 10 digits, does NOT start with 0)\n    if (cleaned.length === 10 && !cleaned.startsWith('0')) {\n      return '+1' + cleaned;\n    }\n\n    // Case 4: Ambiguous\n    if (cleaned.length >= 7 && cleaned.length <= 9) {\n      throw new Error(`Ambiguous phone number: ${phone}. Please include country code.`);\n    }\n\n    throw new Error(`Invalid phone number: ${phone}. Got ${cleaned.length} digits: ${cleaned}`);\n  }\n\n  // Assistant selection\n  const debtorType = (data.debtor_type || 'consumer').toLowerCase();\n  const attemptNumber = parseInt(data.attempt_number) || 1;\n\n  const assistantMap = {\n    'consumer_1': config.VAPI_CONSUMER_1,\n    'consumer_2': config.VAPI_CONSUMER_2,\n    'consumer_3': config.VAPI_CONSUMER_3,\n    'commercial_1': config.VAPI_COMMERCIAL_1,\n    'commercial_2': config.VAPI_COMMERCIAL_2,\n    'commercial_3': config.VAPI_COMMERCIAL_3\n  };\n\n  const assistantKey = `${debtorType}_${attemptNumber}`;\n  const assistantId = assistantMap[assistantKey];\n\n  if (!assistantId) {\n    throw new Error(`No assistant found for ${assistantKey}. Check Set node has VAPI_CONSUMER_1, etc.`);\n  }\n\n  // Prepare Vapi call payload\n  return {\n    vapi_api_key: VAPI_API_KEY,\n    debtor_id: data.debtor_id,\n    row_number: data.row_number,\n    phone_normalized: normalizePhone(data.phone),\n    phone_original: data.phone,\n    assistant_id: assistantId,\n    vapi_payload: {\n      assistantId: assistantId,\n      customer: {\n        number: normalizePhone(data.phone)\n      },\n      phoneNumberId: config.VAPI_PHONE_NUMBER_ID,\n      assistantOverrides: {\n        variableValues: {\n          debtor_id: data.debtor_id.toString(),\n          debtor_name: data.name,\n          amount: data.amount.toString(),\n          creditor: data.creditor,\n          invoice_number: data.invoice_number,\n          dob: data.dob || '',\n          abn: data.abn || '',\n          attempt_number: attemptNumber.toString(),\n          collection_agency: config.COLLECTION_AGENCY || 'Brodie Collection Services',\n          bcs_phone_number: config.BCS_PHONE_NUMBER,\n          stripe_payment_link: config.STRIPE_PAYMENT_LINK,\n          bcs_mailing_address: config.BCS_MAILING_ADDRESS,\n          agent_name: config.AGENT_NAME || 'Sarah',\n          Bank_name: config.BANK_NAME || 'Commonwealth Bank',\n          BSB: config.BSB_NUMBER,\n          Account_Number: config.ACCOUNT_NUMBER\n        }\n      }\n    }\n  };"
       },
       "id": "741ca72e-3f11-44b3-91fd-cacc9f682cd4",
       "name": "Normalize Phone & Prepare Variables1",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        5216,
-        64
-      ]
-    },
-    {
-      "parameters": {
-        "operation": "update",
-        "documentId": {
-          "__rl": true,
-          "value": "1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48",
-          "mode": "list",
-          "cachedResultName": "BCS_Debtors_Template",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit?usp=drivesdk"
-        },
-        "sheetName": {
-          "__rl": true,
-          "value": 1813436853,
-          "mode": "list",
-          "cachedResultName": "BCS_Debtors_Template.csv",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1oRnYftPpebpPKlqUPDYUJZ79Y8sABqnVmRS32Klkn48/edit#gid=1813436853"
-        },
-        "columnToMatchOn": "debtor_id",
-        "valueToMatchOn": "={{ $json.debtor_id }}",
-        "fieldsUi": {
-          "values": [
-            {
-              "column": "call_status",
-              "fieldValue": "calling"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "id": "1ec87213-c599-4a2b-bad0-ff169a635d9c",
-      "name": "Set call_status = calling1",
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 3,
-      "position": [
-        5440,
-        64
-      ],
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "TRnq8nNPjHBRDGiO",
-          "name": "Google Sheets account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.vapi.ai/call/phone",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "=Bearer {{ $('Set').item.json.VAPI_API_KEY }}"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($node['Normalize Phone & Prepare Variables1'].json.vapi_payload) }}",
-        "options": {
-          "timeout": 30000
-        }
-      },
-      "id": "1d9950a5-3347-4554-88ce-c88efffd03dc",
-      "name": "Call Vapi API1",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        5664,
-        64
-      ],
-      "onError": "continueRegularOutput"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 1
-          },
-          "conditions": [
-            {
-              "id": "condition-001",
-              "leftValue": "={{ $json.id }}",
-              "rightValue": "",
-              "operator": {
-                "type": "string",
-                "operation": "exists",
-                "singleValue": true
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "id": "0f6e481e-7f97-42f3-a1bf-a822883fdb70",
-      "name": "IF - Call Successful?1",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2,
-      "position": [
-        5888,
-        64
+        4864,
+        144
       ]
     },
     {
@@ -265,8 +80,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4768,
-        464
+        4880,
+        1104
       ]
     },
     {
@@ -298,8 +113,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        4544,
-        464
+        4656,
+        1104
       ]
     },
     {
@@ -311,15 +126,14 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4320,
-        464
+        4432,
+        1104
       ]
     },
     {
       "parameters": {
         "httpMethod": "POST",
         "path": "vapi-handler",
-        "authentication": "headerAuth",
         "responseMode": "responseNode",
         "options": {}
       },
@@ -328,16 +142,10 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        3984,
-        784
+        3952,
+        480
       ],
-      "webhookId": "vapi-handler",
-      "credentials": {
-        "httpHeaderAuth": {
-          "id": "aYXkQjgmBgoiGMXR",
-          "name": "Header Auth account"
-        }
-      }
+      "webhookId": "vapi-handler"
     },
     {
       "parameters": {
@@ -349,34 +157,34 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        4544,
-        880
+        4176,
+        576
       ]
     },
     {
       "parameters": {
-        "jsCode": "// Verify Bearer Token from Vapi Custom Credential\n  // Updated for local n8n with Set node variables\n\n  // Get configuration from Set node (adjust node name if different)\n  const setNode = $(\"Set2\").first();\n  const secret = setNode.json.VAPI_WEBHOOK_SECRET;\n\n  // Get headers from incoming webhook\n  const headers = $input.first().json.headers || {};\n\n  // Vapi sends Bearer token in x-vapi-secret header (not signature-based)\n  const authHeader = headers['x-vapi-secret'] ||\n                     headers['X-Vapi-Secret'] ||\n                     headers['authorization'] ||\n                     null;\n\n  if (!secret) {\n    throw new Error('VAPI_WEBHOOK_SECRET not found in Set node - configure it in your Set node');\n  }\n\n  if (!authHeader) {\n    console.log('Available headers:', Object.keys(headers));\n    throw new Error('Missing authentication header from Vapi webhook');\n  }\n\n  // Remove \"Bearer \" prefix if present\n  const receivedSecret = authHeader.replace(/^Bearer\\s+/i, '').trim();\n\n  // Simple string comparison (Vapi uses Bearer token, not HMAC signature)\n  if (receivedSecret !== secret) {\n    console.log('Expected secret (first 10 chars):', secret.substring(0, 10));\n    console.log('Received secret (first 10 chars):', receivedSecret.substring(0, 10));\n    throw new Error('Invalid webhook authentication - token mismatch');\n  }\n\n  console.log('✅ Webhook authentication successful');"
+        "jsCode": "// Verify Bearer Token from Vapi\n  // Get headers from the webhook trigger node (not from $input)\n\n  // Reference the webhook node by name\n  const webhookData = $('Webhook - Vapi End-of-Call1').first().json;\n  const headers = webhookData.headers || {};\n\n  // Log available headers for debugging\n  console.log('Headers found:', Object.keys(headers));\n\n  // Get secret from Set2 node\n  const setNode = $(\"Set2\").first();\n  const secret = setNode.json.VAPI_WEBHOOK_SECRET;\n\n  if (!secret) {\n    throw new Error('VAPI_WEBHOOK_SECRET not found in Set2 node');\n  }\n\n  // Get auth header (Vapi sends in x-vapi-secret)\n  const authHeader = headers['x-vapi-secret'] ||\n                     headers['X-Vapi-Secret'] ||\n                     headers['authorization'] ||\n                     null;\n\n  if (!authHeader) {\n    console.log('Available headers:', Object.keys(headers));\n    throw new Error('Missing authentication header from Vapi webhook');\n  }\n\n  // Remove \"Bearer \" prefix if present\n  const receivedSecret = authHeader.replace(/^Bearer\\s+/i, '').trim();\n\n  // Compare secrets\n  if (receivedSecret !== secret) {\n    console.log('Expected secret (first 10 chars):', secret.substring(0, 10));\n    console.log('Received secret (first 10 chars):', receivedSecret.substring(0, 10));\n    throw new Error('Invalid webhook authentication - token mismatch');\n  }\n\n  console.log('Webhook authentication successful');\n\n  // Pass through the webhook body data (not headers)\n  return webhookData.body || webhookData;"
       },
       "id": "990e4c73-c96e-43c2-b4f0-2c6a3b2b4cfe",
       "name": "Verify Signature1",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4544,
-        688
+        4400,
+        384
       ]
     },
     {
       "parameters": {
-        "jsCode": "// Parse Call Data from Webhook\n  // Based on WORKFLOW_ADAPTATION_PLAN.md Section 4.3 with FIX #2 and #7 applied\n\n  // FIX #2: Updated webhook payload parsing based on Vapi docs verification\n  const message = $input.first().json.body.message;\n\n  // Only process end-of-call-report events, ignore others\n  if (message.type !== 'end-of-call-report') {\n    return []; // Return empty array to stop workflow for this event\n  }\n\n  const call = message.call;\n  const artifact = message.artifact || {};\n  console.log(artifact);\n  const endedReason = message.endedReason;\n\n  // Extract debtor_id from assistant overrides (stored in call object)\n  const debtorId = call.assistantOverrides?.variableValues?.debtor_id;\n\n  if (!debtorId) {\n    throw new Error('Missing debtor_id in webhook');\n  }\n\n  // Check if call succeeded or failed\n  const callStatus = call.status; // \"ended\" or \"failed\"\n\n  // Parse function call (log_outcome)\n  // NOTE: Vapi may send this in artifact.messages array - needs testing\n  let outcome = 'UNKNOWN';\n  let paymentMethod = 'none';\n  let notes = '';\n  let promisedDate = null;\n\n  if (callStatus === 'failed') {\n    // FIX #7: CALL_FAILED not in function enum - handle separately\n    outcome = 'CALL_FAILED';\n    notes = `Call failed: ${endedReason}`;\n  } else if (artifact.messages && artifact.messages.length > 0) {\n    // Search for log_outcome function call in messages\n    // Function calls may appear as toolCalls in message objects\n    let functionCallFound = false;\n\n    for (const msg of artifact.messages) {\n      if (msg.toolCalls && Array.isArray(msg.toolCalls)) {\n        for (const toolCall of msg.toolCalls) {\n          if (toolCall.function?.name === 'log_outcome') {\n            // Parse function arguments (may be string or object)\n            const args = typeof toolCall.function.arguments === 'string'\n              ? JSON.parse(toolCall.function.arguments)\n              : toolCall.function.arguments;\n\n            outcome = args.outcome || 'UNKNOWN';\n            paymentMethod = args.payment_method || 'none';\n            notes = args.notes || '';\n            promisedDate = args.promised_date || null;\n            functionCallFound = true;\n            break;\n          }\n        }\n        if (functionCallFound) break;\n      }\n    }\n\n    if (!functionCallFound) {\n      // No function call found = likely no answer, voicemail, or system error\n      outcome = 'NO_ANSWER';\n      notes = 'No outcome logged by assistant (check transcript)';\n    }\n  } else {\n    // No messages in artifact\n    outcome = 'NO_ANSWER';\n    notes = 'No conversation recorded';\n  }\n\n  return {\n    debtor_id: debtorId,\n    call_id: call.id,\n    call_status: callStatus,\n    recording_url: artifact.recording?.stereoUrl || call.recordingUrl || '',\n    transcript: artifact.transcript || '',\n    outcome: outcome,\n    payment_method: paymentMethod,\n    notes: notes,\n    promised_date: promisedDate,\n    call_duration: (() => {\n      if (!message.startedAt || !message.endedAt) return 0;\n\n      const start = new Date(message.startedAt).getTime();\n      const end = new Date(message.endedAt).getTime();\n\n      if (isNaN(start) || isNaN(end)) return 0;\n\n      return (end - start) / 1000; // duration in seconds\n    })(),\n  };"
+        "jsCode": "// Parse Call Data from Webhook\n  // Based on WORKFLOW_ADAPTATION_PLAN.md Section 4.3 with FIX #2 and #7 applied\n\n  // FIX #2: Updated webhook payload parsing based on Vapi docs verification\n  const message = $input.first().json.message;\n\n  // Only process end-of-call-report events, ignore others\n  if (message.type !== 'end-of-call-report') {\n    return []; // Return empty array to stop workflow for this event\n  }\n\n  const call = message.call;\n  const artifact = message.artifact || {};\n  console.log(artifact);\n  const endedReason = message.endedReason;\n\n  // Extract debtor_id from assistant overrides (stored in call object)\n  const debtorId = call.assistantOverrides?.variableValues?.debtor_id;\n\n  if (!debtorId) {\n    throw new Error('Missing debtor_id in webhook');\n  }\n\n  // Check if call succeeded or failed\n  const callStatus = call.status; // \"ended\" or \"failed\"\n\n  // Parse function call (log_outcome)\n  // NOTE: Vapi may send this in artifact.messages array - needs testing\n  let outcome = 'UNKNOWN';\n  let paymentMethod = 'none';\n  let notes = '';\n  let promisedDate = null;\n\n  if (callStatus === 'failed') {\n    // FIX #7: CALL_FAILED not in function enum - handle separately\n    outcome = 'CALL_FAILED';\n    notes = `Call failed: ${endedReason}`;\n  } else if (artifact.messages && artifact.messages.length > 0) {\n    // Search for log_outcome function call in messages\n    // Function calls may appear as toolCalls in message objects\n    let functionCallFound = false;\n\n    for (const msg of artifact.messages) {\n      if (msg.toolCalls && Array.isArray(msg.toolCalls)) {\n        for (const toolCall of msg.toolCalls) {\n          if (toolCall.function?.name === 'log_outcome') {\n            // Parse function arguments (may be string or object)\n            const args = typeof toolCall.function.arguments === 'string'\n              ? JSON.parse(toolCall.function.arguments)\n              : toolCall.function.arguments;\n\n            outcome = args.outcome || 'UNKNOWN';\n            paymentMethod = args.payment_method || 'none';\n            notes = args.notes || '';\n            promisedDate = args.promised_date || null;\n            functionCallFound = true;\n            break;\n          }\n        }\n        if (functionCallFound) break;\n      }\n    }\n\n    if (!functionCallFound) {\n      // No function call found = likely no answer, voicemail, or system error\n      outcome = 'NO_ANSWER';\n      notes = 'No outcome logged by assistant (check transcript)';\n    }\n  } else {\n    // No messages in artifact\n    outcome = 'NO_ANSWER';\n    notes = 'No conversation recorded';\n  }\n\n  return {\n    debtor_id: debtorId,\n    call_id: call.id,\n    call_status: callStatus,\n    recording_url: artifact.recording?.stereoUrl || call.recordingUrl || '',\n    transcript: artifact.transcript || '',\n    outcome: outcome,\n    payment_method: paymentMethod,\n    notes: notes,\n    promised_date: promisedDate,\n    call_duration: (() => {\n      if (!message.startedAt || !message.endedAt) return 0;\n\n      const start = new Date(message.startedAt).getTime();\n      const end = new Date(message.endedAt).getTime();\n\n      if (isNaN(start) || isNaN(end)) return 0;\n\n      return (end - start) / 1000; // duration in seconds\n    })(),\n  };"
       },
       "id": "67ee8eec-a86e-40fe-9099-a9f12ae0631b",
       "name": "Parse Call Data1",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4768,
-        688
+        4624,
+        384
       ]
     },
     {
@@ -388,8 +196,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4992,
-        688
+        4848,
+        384
       ]
     },
     {
@@ -423,8 +231,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 3,
       "position": [
-        5216,
-        688
+        5072,
+        384
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -442,8 +250,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        5440,
-        688
+        5296,
+        384
       ]
     },
     {
@@ -528,8 +336,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 3,
       "position": [
-        5664,
-        688
+        5520,
+        384
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -567,8 +375,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        5888,
-        688
+        5744,
+        384
       ]
     },
     {
@@ -584,8 +392,8 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        4368,
-        1328
+        3984,
+        1344
       ],
       "id": "53725b1a-5343-4643-b009-4e8633a2d90a",
       "name": "Schedule Trigger"
@@ -613,8 +421,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 3,
       "position": [
-        4592,
-        1328
+        4208,
+        1344
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -630,8 +438,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        4816,
-        1328
+        4432,
+        1344
       ],
       "id": "31fa7d40-8ce3-4a7a-8984-97d42f1354f9",
       "name": "Filter Debtors"
@@ -643,8 +451,8 @@
       "type": "n8n-nodes-base.splitInBatches",
       "typeVersion": 3,
       "position": [
-        5040,
-        1328
+        4656,
+        1344
       ],
       "id": "0468d12f-2654-4c97-a1c5-b33ef2ed46b6",
       "name": "Loop Over Items"
@@ -655,8 +463,8 @@
       "name": "Replace Me",
       "typeVersion": 1,
       "position": [
-        5488,
-        1328
+        5104,
+        1344
       ],
       "id": "6102264f-3e39-4c95-8723-fb207b71a54f"
     },
@@ -742,8 +550,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 3,
       "position": [
-        5264,
-        1360
+        4912,
+        1376
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -847,7 +655,7 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        4304,
+        4192,
         144
       ],
       "id": "ea794624-0761-4c08-83ed-70ba3df9ad3c",
@@ -858,8 +666,8 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        3968,
-        464
+        3984,
+        1104
       ],
       "id": "811259a8-8d36-4763-902e-6af2266ee8e0",
       "name": "When clicking ‘Execute workflow’"
@@ -887,8 +695,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        4160,
-        464
+        4208,
+        1104
       ],
       "id": "0b71edd3-dcb7-4d32-83dc-deb44cb4524e",
       "name": "Set1"
@@ -916,37 +724,57 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        4304,
-        672
+        4176,
+        384
       ],
       "id": "53ce5d19-a327-42de-8e45-762cd7c02580",
       "name": "Set2"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "ukRc77KQcAOncaw8",
+          "mode": "list",
+          "cachedResultName": "Peter S: Make VAPI Call"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [
+            "VAPI_API_KEY"
+          ],
+          "schema": [
+            {
+              "id": "VAPI_API_KEY",
+              "displayName": "VAPI_API_KEY",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        5088,
+        144
+      ],
+      "id": "eeab65c9-36ab-483b-871f-c2dcc7734506",
+      "name": "Execute Workflow"
     }
   ],
   "pinData": {},
   "connections": {
-    "Google Sheets - Reset call_status": {
-      "main": [
-        [
-          {
-            "node": "Replace Me1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Replace Me1": {
-      "main": [
-        [
-          {
-            "node": "Split Into Items1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Every 30 Minutes1": {
       "main": [
         [
@@ -973,18 +801,6 @@
       "main": [
         [
           {
-            "node": "Split Into Items1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Split Into Items1": {
-      "main": [
-        [],
-        [
-          {
             "node": "Normalize Phone & Prepare Variables1",
             "type": "main",
             "index": 0
@@ -996,47 +812,7 @@
       "main": [
         [
           {
-            "node": "Set call_status = calling1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Set call_status = calling1": {
-      "main": [
-        [
-          {
-            "node": "Call Vapi API1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Call Vapi API1": {
-      "main": [
-        [
-          {
-            "node": "IF - Call Successful?1",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "IF - Call Successful?1": {
-      "main": [
-        [
-          {
-            "node": "Replace Me1",
-            "type": "main",
-            "index": 0
-          }
-        ],
-        [
-          {
-            "node": "Google Sheets - Reset call_status",
+            "node": "Execute Workflow",
             "type": "main",
             "index": 0
           }
@@ -1263,7 +1039,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "c97c8fe0-8a0e-48c1-881d-33879f8fa73c",
+  "versionId": "8ff3eaf0-dbc4-4dc5-84f2-815571732f47",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "15fdefe217dd497a3644ac7579dc52a8d91ba7b8a26ac0fbdc9f2ffe89ed0a93"
