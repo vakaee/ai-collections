@@ -1,0 +1,238 @@
+{
+	"info": {
+		"name": "BCS - Update Vapi Assistant Settings",
+		"description": "Updates call quality settings for all 6 BCS debt collection assistants:\n- Enable backchanneling\n- Enable background denoising\n- Increase confidence threshold (0.4 → 0.6)\n- Increase endpointing (300ms → 500ms)\n- Increase wait time (0.6s → 0.8s)\n\nThese changes improve:\n1. Interruption handling (won't talk over caller)\n2. Transcription accuracy (fewer mishears)\n3. Natural conversation flow",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Update Consumer 1 Settings",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{VAPI_API_KEY}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"backchannelingEnabled\": true,\n  \"backgroundDenoisingEnabled\": true,\n  \"transcriber\": {\n    \"model\": \"nova-3\",\n    \"language\": \"en-AU\",\n    \"provider\": \"deepgram\",\n    \"confidenceThreshold\": 0.6,\n    \"endpointing\": 500\n  },\n  \"startSpeakingPlan\": {\n    \"waitSeconds\": 0.8,\n    \"smartEndpointingEnabled\": \"livekit\"\n  }\n}"
+				},
+				"url": {
+					"raw": "https://api.vapi.ai/assistant/8e90f91e-def1-4816-b663-e0f5a5cdb12d",
+					"protocol": "https",
+					"host": [
+						"api",
+						"vapi",
+						"ai"
+					],
+					"path": [
+						"assistant",
+						"8e90f91e-def1-4816-b663-e0f5a5cdb12d"
+					]
+				},
+				"description": "Updates Consumer 1 (First Contact) assistant with improved call quality settings"
+			},
+			"response": []
+		},
+		{
+			"name": "2. Update Consumer 2 Settings",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{VAPI_API_KEY}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"backchannelingEnabled\": true,\n  \"backgroundDenoisingEnabled\": true,\n  \"transcriber\": {\n    \"model\": \"nova-2\",\n    \"language\": \"en\",\n    \"provider\": \"deepgram\",\n    \"confidenceThreshold\": 0.6,\n    \"endpointing\": 500\n  },\n  \"startSpeakingPlan\": {\n    \"waitSeconds\": 0.8\n  }\n}"
+				},
+				"url": {
+					"raw": "https://api.vapi.ai/assistant/7258608d-da9d-4925-97cb-bd507927c63e",
+					"protocol": "https",
+					"host": [
+						"api",
+						"vapi",
+						"ai"
+					],
+					"path": [
+						"assistant",
+						"7258608d-da9d-4925-97cb-bd507927c63e"
+					]
+				},
+				"description": "Updates Consumer 2 (Follow-up) assistant with improved call quality settings"
+			},
+			"response": []
+		},
+		{
+			"name": "3. Update Consumer 3 Settings",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{VAPI_API_KEY}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"backchannelingEnabled\": true,\n  \"backgroundDenoisingEnabled\": true,\n  \"transcriber\": {\n    \"model\": \"nova-2\",\n    \"language\": \"en\",\n    \"provider\": \"deepgram\",\n    \"confidenceThreshold\": 0.6,\n    \"endpointing\": 500\n  },\n  \"startSpeakingPlan\": {\n    \"waitSeconds\": 0.8\n  }\n}"
+				},
+				"url": {
+					"raw": "https://api.vapi.ai/assistant/46741443-372e-4bcf-807b-24a3174ca7dd",
+					"protocol": "https",
+					"host": [
+						"api",
+						"vapi",
+						"ai"
+					],
+					"path": [
+						"assistant",
+						"46741443-372e-4bcf-807b-24a3174ca7dd"
+					]
+				},
+				"description": "Updates Consumer 3 (Final Warning) assistant with improved call quality settings"
+			},
+			"response": []
+		},
+		{
+			"name": "4. Update Commercial 1 Settings",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{VAPI_API_KEY}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"backchannelingEnabled\": true,\n  \"backgroundDenoisingEnabled\": true,\n  \"transcriber\": {\n    \"model\": \"nova-2\",\n    \"language\": \"en\",\n    \"provider\": \"deepgram\",\n    \"confidenceThreshold\": 0.6,\n    \"endpointing\": 500\n  },\n  \"startSpeakingPlan\": {\n    \"waitSeconds\": 0.8\n  }\n}"
+				},
+				"url": {
+					"raw": "https://api.vapi.ai/assistant/a49e2efc-d763-48a5-870d-e977f0bc8809",
+					"protocol": "https",
+					"host": [
+						"api",
+						"vapi",
+						"ai"
+					],
+					"path": [
+						"assistant",
+						"a49e2efc-d763-48a5-870d-e977f0bc8809"
+					]
+				},
+				"description": "Updates Commercial 1 (First Contact) assistant with improved call quality settings"
+			},
+			"response": []
+		},
+		{
+			"name": "5. Update Commercial 2 Settings",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{VAPI_API_KEY}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"backchannelingEnabled\": true,\n  \"backgroundDenoisingEnabled\": true,\n  \"transcriber\": {\n    \"model\": \"nova-2\",\n    \"language\": \"en\",\n    \"provider\": \"deepgram\",\n    \"confidenceThreshold\": 0.6,\n    \"endpointing\": 500\n  },\n  \"startSpeakingPlan\": {\n    \"waitSeconds\": 0.8\n  }\n}"
+				},
+				"url": {
+					"raw": "https://api.vapi.ai/assistant/d3480d75-99b3-4d21-82ff-e64675435004",
+					"protocol": "https",
+					"host": [
+						"api",
+						"vapi",
+						"ai"
+					],
+					"path": [
+						"assistant",
+						"d3480d75-99b3-4d21-82ff-e64675435004"
+					]
+				},
+				"description": "Updates Commercial 2 (Follow-up) assistant with improved call quality settings"
+			},
+			"response": []
+		},
+		{
+			"name": "6. Update Commercial 3 Settings",
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{VAPI_API_KEY}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"backchannelingEnabled\": true,\n  \"backgroundDenoisingEnabled\": true,\n  \"transcriber\": {\n    \"model\": \"nova-2\",\n    \"language\": \"en\",\n    \"provider\": \"deepgram\",\n    \"confidenceThreshold\": 0.6,\n    \"endpointing\": 500\n  },\n  \"startSpeakingPlan\": {\n    \"waitSeconds\": 0.8\n  }\n}"
+				},
+				"url": {
+					"raw": "https://api.vapi.ai/assistant/67179ac8-281d-4f3e-9cf4-5f2336c5a432",
+					"protocol": "https",
+					"host": [
+						"api",
+						"vapi",
+						"ai"
+					],
+					"path": [
+						"assistant",
+						"67179ac8-281d-4f3e-9cf4-5f2336c5a432"
+					]
+				},
+				"description": "Updates Commercial 3 (Final Warning) assistant with improved call quality settings"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "VAPI_API_KEY",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
