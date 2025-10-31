@@ -60,7 +60,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Normalize Phone & Prepare Vapi Variables\n\n  // Get config from Set node (change 'Set' to your actual node name if different)\n  const config = $('Set').first().json;\nconst VAPI_API_KEY=config.VAPI_API_KEY;\n\n  // Get debtor data\n  // Get debtor data - REFERENCE THE CORRECT NODE\n  const data = $('Read BCS Debtors1').first().json;  \n\n  // Phone normalization function\n  function normalizePhone(phone) {\n    if (!phone) return null;\n\n    let cleaned = phone.toString().replace(/[\\s\\-\\(\\)\\.\\+]/g, '');\n\n    // Case 1: Already has country code (11+ digits, no leading 0)\n    if (cleaned.length >= 11 && !cleaned.startsWith('0')) {\n      if (cleaned.startsWith('61')) {\n        return '+' + cleaned;\n      }\n      if (cleaned.startsWith('1') && cleaned.length === 11) {\n        return '+' + cleaned;\n      }\n      if (cleaned.startsWith('44')) {\n        return '+' + cleaned;\n      }\n      if (cleaned.length >= 11 && cleaned.length <= 15) {\n        return '+' + cleaned;\n      }\n    }\n\n    // Case 2: Australian local format (starts with 0, exactly 10 digits)\n    if (cleaned.startsWith('0') && cleaned.length === 10) {\n      return '+61' + cleaned.substring(1);\n    }\n\n    // Case 3: North American (exactly 10 digits, does NOT start with 0)\n    if (cleaned.length === 10 && !cleaned.startsWith('0')) {\n      return '+1' + cleaned;\n    }\n\n    // Case 4: Ambiguous\n    if (cleaned.length >= 7 && cleaned.length <= 9) {\n      throw new Error(`Ambiguous phone number: ${phone}. Please include country code.`);\n    }\n\n    throw new Error(`Invalid phone number: ${phone}. Got ${cleaned.length} digits: ${cleaned}`);\n  }\n\n  // Assistant selection\n  const debtorType = (data.debtor_type || 'consumer').toLowerCase();\n  const attemptNumber = parseInt(data.attempt_number) || 1;\n\n  const assistantMap = {\n    'consumer_1': config.VAPI_CONSUMER_1,\n    'consumer_2': config.VAPI_CONSUMER_2,\n    'consumer_3': config.VAPI_CONSUMER_3,\n    'commercial_1': config.VAPI_COMMERCIAL_1,\n    'commercial_2': config.VAPI_COMMERCIAL_2,\n    'commercial_3': config.VAPI_COMMERCIAL_3\n  };\n\n  const assistantKey = `${debtorType}_${attemptNumber}`;\n  const assistantId = assistantMap[assistantKey];\n\n  if (!assistantId) {\n    throw new Error(`No assistant found for ${assistantKey}. Check Set node has VAPI_CONSUMER_1, etc.`);\n  }\n\n  // Prepare Vapi call payload\n  return {\n    vapi_api_key: VAPI_API_KEY,\n    debtor_id: data.debtor_id,\n    row_number: data.row_number,\n    phone_normalized: normalizePhone(data.phone),\n    phone_original: data.phone,\n    assistant_id: assistantId,\n    vapi_payload: {\n      assistantId: assistantId,\n      customer: {\n        number: normalizePhone(data.phone)\n      },\n      phoneNumberId: config.VAPI_PHONE_NUMBER_ID,\n      assistantOverrides: {\n        variableValues: {\n          debtor_id: data.debtor_id.toString(),\n          debtor_name: data.name,\n          amount: data.amount.toString(),\n          creditor: data.creditor,\n          invoice_number: data.invoice_number,\n          dob: data.dob || '',\n          abn: data.abn || '',\n          attempt_number: attemptNumber.toString(),\n          collection_agency: config.COLLECTION_AGENCY || 'Brodie Collection Services',\n          bcs_phone_number: config.BCS_PHONE_NUMBER,\n          stripe_payment_link: config.STRIPE_PAYMENT_LINK,\n          bcs_mailing_address: config.BCS_MAILING_ADDRESS,\n          agent_name: config.AGENT_NAME || 'Sarah',\n          Bank_name: config.BANK_NAME || 'Commonwealth Bank',\n          BSB: config.BSB_NUMBER,\n          Account_Number: config.ACCOUNT_NUMBER\n        }\n      }\n    }\n  };"
+        "jsCode": "// Normalize Phone & Prepare Vapi Variables\n\n  // Get config from Set node (change 'Set' to your actual node name if different)\n  const config = $('Set').first().json;\n  const VAPI_API_KEY = config.VAPI_API_KEY;\n\n  // Get debtor data - REFERENCE THE CORRECT NODE\n  const data = $('Read BCS Debtors1').first().json;\n\n  // Phone normalization function\n  function normalizePhone(phone) {\n    if (!phone) return null;\n\n    let cleaned = phone.toString().replace(/[\\s\\-\\(\\)\\.\\+]/g, '');\n\n    // Case 1: Already has country code (11+ digits, no leading 0)\n    if (cleaned.length >= 11 && !cleaned.startsWith('0')) {\n      if (cleaned.startsWith('61')) {\n        return '+' + cleaned;\n      }\n      if (cleaned.startsWith('1') && cleaned.length === 11) {\n        return '+' + cleaned;\n      }\n      if (cleaned.startsWith('44')) {\n        return '+' + cleaned;\n      }\n      if (cleaned.length >= 11 && cleaned.length <= 15) {\n        return '+' + cleaned;\n      }\n    }\n\n    // Case 2: Australian local format (starts with 0, exactly 10 digits)\n    if (cleaned.startsWith('0') && cleaned.length === 10) {\n      return '+61' + cleaned.substring(1);\n    }\n\n    // Case 3: North American (exactly 10 digits, does NOT start with 0)\n    if (cleaned.length === 10 && !cleaned.startsWith('0')) {\n      return '+1' + cleaned;\n    }\n\n    // Case 4: Ambiguous\n    if (cleaned.length >= 7 && cleaned.length <= 9) {\n      throw new Error(`Ambiguous phone number: ${phone}. Please include country code.`);\n    }\n\n    throw new Error(`Invalid phone number: ${phone}. Got ${cleaned.length} digits: ${cleaned}`);\n  }\n\n  // Assistant selection\n  const debtorType = (data.debtor_type || 'consumer').toLowerCase();\n  const attemptNumber = parseInt(data.attempt_number) || 1;\n\n  // Check if max attempts exceeded\n  if (attemptNumber > 3) {\n    return {\n      status: 'max_attempts_exceeded',\n      debtor_id: data.debtor_id,\n      row_number: data.row_number,\n      phone_original: data.phone,\n      attempt_number: attemptNumber,\n      message: `Maximum attempts (3) exceeded for debtor ${data.debtor_id}. Current attempt: ${attemptNumber}`,\n      skip_call: true\n    };\n  }\n\n  const assistantMap = {\n    'consumer_1': config.VAPI_CONSUMER_1,\n    'consumer_2': config.VAPI_CONSUMER_2,\n    'consumer_3': config.VAPI_CONSUMER_3,\n    'commercial_1': config.VAPI_COMMERCIAL_1,\n    'commercial_2': config.VAPI_COMMERCIAL_2,\n    'commercial_3': config.VAPI_COMMERCIAL_3\n  };\n\n  const assistantKey = `${debtorType}_${attemptNumber}`;\n  const assistantId = assistantMap[assistantKey];\n\n  if (!assistantId) {\n    throw new Error(`No assistant found for ${assistantKey}. Check Set node has VAPI_CONSUMER_1, etc.`);\n  }\n\n  // Prepare Vapi call payload\n  return {\n    status: 'ready_to_call',\n    vapi_api_key: VAPI_API_KEY,\n    debtor_id: data.debtor_id,\n    row_number: data.row_number,\n    phone_normalized: normalizePhone(data.phone),\n    phone_original: data.phone,\n    assistant_id: assistantId,\n    attempt_number: attemptNumber,\n    skip_call: false,\n    vapi_payload: {\n      assistantId: assistantId,\n      customer: {\n        number: normalizePhone(data.phone)\n      },\n      phoneNumberId: config.VAPI_PHONE_NUMBER_ID,\n      assistantOverrides: {\n        variableValues: {\n          debtor_id: data.debtor_id.toString(),\n          debtor_name: data.name,\n          amount: data.amount.toString(),\n          creditor: data.creditor,\n          invoice_number: data.invoice_number,\n          dob: data.dob || '',\n          abn: data.abn || '',\n          attempt_number: attemptNumber.toString(),\n          collection_agency: config.COLLECTION_AGENCY || 'Brodie Collection Services',\n          bcs_phone_number: config.BCS_PHONE_NUMBER,\n          stripe_payment_link: config.STRIPE_PAYMENT_LINK,\n          bcs_mailing_address: config.BCS_MAILING_ADDRESS,\n          agent_name: config.AGENT_NAME || 'John',\n          Bank_name: config.BANK_NAME || 'Commonwealth Bank',\n          BSB: config.BSB_NUMBER,\n          Account_Number: config.ACCOUNT_NUMBER\n        }\n      }\n    }\n  };"
       },
       "id": "741ca72e-3f11-44b3-91fd-cacc9f682cd4",
       "name": "Normalize Phone & Prepare Variables1",
@@ -627,7 +627,7 @@
             {
               "id": "fc85a61b-f0b2-4682-8ac4-237e8c3a0540",
               "name": "AGENT_NAME",
-              "value": "Sarah",
+              "value": "John",
               "type": "string"
             },
             {
@@ -646,6 +646,24 @@
               "id": "06318361-47c5-49bc-b238-6d86cff96463",
               "name": "VAPI_PHONE_NUMBER",
               "value": "+1 (320) 233 5566",
+              "type": "string"
+            },
+            {
+              "id": "63ce681a-ddb4-42ea-b031-bd58f84fadff",
+              "name": "VAPI_COMMERCIAL_1",
+              "value": "bbd93dec-b4a4-414f-a57d-56112768dbbd",
+              "type": "string"
+            },
+            {
+              "id": "fb4ffcd9-3865-469e-b82d-65410b82be7c",
+              "name": "VAPI_COMMERCIAL_2",
+              "value": "fd217fcf-f78f-4bfb-b832-6f8f0c688526",
+              "type": "string"
+            },
+            {
+              "id": "0d7501a7-3453-4be7-8db5-a5887bb8dc3b",
+              "name": "VAPI_COMMERCIAL_3",
+              "value": "fbc3986f-af33-4811-b2d3-4dc73c3f0bbc",
               "type": "string"
             }
           ]
@@ -1039,7 +1057,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "8ff3eaf0-dbc4-4dc5-84f2-815571732f47",
+  "versionId": "e1334fab-143b-4fcc-b935-6fab66a52e8d",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "15fdefe217dd497a3644ac7579dc52a8d91ba7b8a26ac0fbdc9f2ffe89ed0a93"
