@@ -38,7 +38,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 3,
       "position": [
-        6128,
+        6112,
         64
       ],
       "credentials": {
@@ -231,7 +231,7 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "00d37ac5-3b4d-48df-bfb5-2e82e022a54e",
+  "versionId": "9ee0ab60-e2c5-433c-872d-0d7059c46132",
   "meta": {
     "instanceId": "15fdefe217dd497a3644ac7579dc52a8d91ba7b8a26ac0fbdc9f2ffe89ed0a93"
   },
